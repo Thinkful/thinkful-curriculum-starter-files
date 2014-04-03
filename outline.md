@@ -1,3 +1,5 @@
+# PIP-002 Programming in Python
+
 [Content Assets Spreadsheet](https://docs.google.com/a/thinkful.com/spreadsheet/ccc?key=0Ao-c3dZwlF5fdEFJTzFNQmFqTFM2YU1FZTRsX084QWc&usp=drive_web#gid=0)
 
 [Google Doc Outline](https://docs.google.com/a/thinkful.com/document/d/1LPcDYjTaaEZgw1tV0Q18_5-GjjK_xDCItlvPJuLFIW4/edit#heading=h.l1ko3s4wxh7g)
