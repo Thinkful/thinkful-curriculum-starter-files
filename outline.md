@@ -136,6 +136,8 @@
 
 ### 3: SQL Alchemy Basics
 
+### 4: Testing with Database
+
 ### 4: Twitter Analytics
 
 
