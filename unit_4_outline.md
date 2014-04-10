@@ -32,9 +32,7 @@
     - Use jsonschema to validate data
     - **EXTENSION** Add PUT endpoint for editing posts
 
-## Lesson 2 - Building a single-page app
-
-### Project 1 - Chord tool
+## Lesson 2 - Single Page App 1: Chord Tool
 
 1. Project introduction (READ)
 
