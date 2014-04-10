@@ -5,6 +5,8 @@
 1. Introduction to APIs and single-pages apps (READ - Possibly http://pando.com/2012/12/06/html-javascript-and-the-app-ification-of-the-web/)
 
 2. Writing your first endpoints (CODE ALONG)
+
+    - mention CRUD / RESTful resource
     - Write tests for a /posts and /posts/id endpoint checking that they:
         - Return empty JSON
         - Have the correct mimetype set
