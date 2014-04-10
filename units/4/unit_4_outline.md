@@ -5,6 +5,8 @@
 1. Introduction to APIs and single-pages apps (READ - Possibly http://pando.com/2012/12/06/html-javascript-and-the-app-ification-of-the-web/)
 
 2. Writing your first endpoints (CODE ALONG)
+
+    - mention CRUD / RESTful resource
     - Write tests for a /posts and /posts/id endpoint checking that they:
         - Return empty JSON
         - Have the correct mimetype set
@@ -30,9 +32,7 @@
     - Use jsonschema to validate data
     - **EXTENSION** Add PUT endpoint for editing posts
 
-## Lesson 2 - Building a single-page app
-
-### Project 1 - Chord tool
+## Lesson 2 - Single Page App 1: Chord Tool
 
 1. Project introduction (READ)
 
