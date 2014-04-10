@@ -4,7 +4,7 @@
 
 [Google Doc Outline](https://docs.google.com/a/thinkful.com/document/d/1LPcDYjTaaEZgw1tV0Q18_5-GjjK_xDCItlvPJuLFIW4/edit#heading=h.l1ko3s4wxh7g)
 
-## Course Intro
+## Course Intro 
 
 ## Unit 0: Python Prework
 
