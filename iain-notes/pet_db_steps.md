@@ -11,6 +11,7 @@ Database Design, in several passes of refactor
     * breed - text
     * adopted - boolean 
     * shelter
+    
 
 - discuss issues coming from duplicating data as text fields
 Exercises:
