@@ -3,10 +3,10 @@ import json
 from flask import request, Response, url_for
 from jsonschema import validate, ValidationError
 
+import models
+import decorators
 from posts import app
-from models import Post
 from database import session
-from decorators import accept_json, require_json
 
 # JSON Schema describing the structure of a post
 post_schema = {
@@ -19,14 +19,14 @@ post_schema = {
 
 
 @app.route("/api/posts", methods=["GET"])
-@accept_json
+@decorators.accept_json
 def posts_get():
     """ Get a list of posts """
     # Get the querystring arguments
     month = request.args.get("month")
 
     # Get and filter the posts from the database
-    posts = session.query(Post).all()
+    posts = session.query(models.Post).all()
     if month:
         posts = [post for post in posts
                  if post.datetime.month == int(month)]
@@ -37,8 +37,8 @@ def posts_get():
 
 
 @app.route("/api/posts", methods=["POST"])
-@accept_json
-@require_json
+@decorators.accept_json
+@decorators.require_json
 def posts_post():
     """ Add a new post """
     data = request.json
@@ -52,7 +52,7 @@ def posts_post():
         return Response(json.dumps(data), 422, mimetype="application/json")
 
     # Add the post to the database
-    post = Post(title=data["title"], body=data["body"])
+    post = models.Post(title=data["title"], body=data["body"])
     session.add(post)
     session.commit()
 
@@ -65,11 +65,11 @@ def posts_post():
 
 
 @app.route("/api/posts/<int:id>", methods=["GET"])
-@accept_json
+@decorators.accept_json
 def post_get(id):
     """ Single post endpoint """
     # Get the post from the database
-    post = session.query(Post).get(id)
+    post = session.query(models.Post).get(id)
 
     # Check whether the post exists
     # If not return a 404 with a helpful message

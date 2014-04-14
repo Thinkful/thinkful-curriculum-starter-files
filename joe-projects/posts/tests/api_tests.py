@@ -8,7 +8,7 @@ from urlparse import urlparse
 os.environ["CONFIG_PATH"] = "posts.config.TestingConfig"
 
 from posts import app
-from posts.models import Post
+from posts import models
 from posts.database import Base, engine, session
 
 class TestAPI(unittest.TestCase):
@@ -40,8 +40,8 @@ class TestAPI(unittest.TestCase):
 
     def testGetPosts(self):
         """ Getting posts from a populated database """
-        postA = Post(title="Example Post A", body="Just a test")
-        postB = Post(title="Example Post B", body="Still a test")
+        postA = models.Post(title="Example Post A", body="Just a test")
+        postB = models.Post(title="Example Post B", body="Still a test")
 
         session.add_all([postA, postB])
         session.commit()
@@ -66,8 +66,8 @@ class TestAPI(unittest.TestCase):
 
     def testGetPost(self):
         """ Getting a single post from a populated database """
-        postA = Post(title="Example Post A", body="Just a test")
-        postB = Post(title="Example Post B", body="Still a test")
+        postA = models.Post(title="Example Post A", body="Just a test")
+        postB = models.Post(title="Example Post B", body="Still a test")
 
         session.add_all([postA, postB])
         session.commit()
@@ -100,9 +100,9 @@ class TestAPI(unittest.TestCase):
         now = datetime.datetime.now()
         month = datetime.timedelta(days=31)
 
-        oldPost = Post(title="Old post", body="Posted last month",
+        oldPost = models.Post(title="Old post", body="Posted last month",
                        datetime=now - month)
-        newPost = Post(title="New post", body="Posted this month")
+        newPost = models.Post(title="New post", body="Posted this month")
 
         session.add_all([oldPost, newPost])
         session.commit()
@@ -138,7 +138,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(urlparse(response.headers.get("Location")).path,
                          "/api/posts/1")
 
-        posts = session.query(Post).all()
+        posts = session.query(models.Post).all()
         self.assertEqual(len(posts), 1)
 
         post = posts[0]
