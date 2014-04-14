@@ -44,6 +44,7 @@ class TestAPI(unittest.TestCase):
         postB = Post(title="Example Post B", body="Still a test")
 
         session.add_all([postA, postB])
+        session.commit()
 
         response = self.client.get("/api/posts",
             headers=[("Accept", "application/json")]
