@@ -21,6 +21,7 @@ post_schema = {
 @app.route("/api/posts", methods=["GET"])
 @accept_json
 def posts_get():
+    """ Get a list of posts """
     # Get the querystring arguments
     month = request.args.get("month")
 
@@ -39,6 +40,7 @@ def posts_get():
 @accept_json
 @require_json
 def posts_post():
+    """ Add a new post """
     data = request.json
 
     # Check that the JSON supplied is valid

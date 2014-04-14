@@ -9,8 +9,8 @@ class Post(Base):
     __tablename__ = "posts"
 
     id = Column(Integer, Sequence('post_id_sequence'), primary_key=True)
-    title = Column(String(100))
-    body = Column(String(1000))
+    title = Column(String(128))
+    body = Column(String(1024))
     datetime = Column(DateTime, default=datetime.datetime.now)
 
     def asDictionary(self):
