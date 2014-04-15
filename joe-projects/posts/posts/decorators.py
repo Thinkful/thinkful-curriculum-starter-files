@@ -1,6 +1,7 @@
+import json
 from functools import wraps
 
-from flask import request
+from flask import request, Response
 
 
 def accept_json(func):
@@ -11,7 +12,8 @@ def accept_json(func):
     def wrapper(*args, **kwargs):
         if "application/json" in request.accept_mimetypes:
             return func(*args, **kwargs)
-        return {"message": "Request must accept JSON"}, 406
+        data = json.dumps({"message": "Request must accept JSON"})
+        return Response(data, 406, mimetype="application/json")
     return wrapper
 
 def require_json(func):
@@ -23,5 +25,6 @@ def require_json(func):
     def wrapper(*args, **kwargs):
         if (request.mimetype ==  "application/json"):
             return func(*args, **kwargs)
-        return {"message": "Request must contain JSON"}, 415
+        data = json.dumps({"message": "Request must accept JSON"})
+        return Response(data, 415, mimetype="application/json")
     return wrapper
