@@ -1,0 +1,19 @@
+Notes on the SA tutorial:
+
+Sections:
+- what is an orm and why use one - DRAFT
+
+- setting up SQLAlchemy
+  - engine, metadata, concept of data mapper, unit of work
+  - the metadata registry, on Base.metadata
+  - the concept of the identity map  
+
+
+Questions:
+- have they used logging and pdb yet??
+ 
+Cover rolling back
+
+TO DO:
+- walk through the whole tutorial using
+  sqllite
