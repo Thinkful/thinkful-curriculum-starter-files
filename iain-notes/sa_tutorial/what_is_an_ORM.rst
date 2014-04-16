@@ -116,7 +116,7 @@ do not need to be changed. ::
 
 Even more succintly, this allows us to use input dictionaries with keys
 corresponding to property names on our objects so we can update many attributes
-of an object in one loop:
+of an object in one loop ::
     
     # get a dictionay of input values to use for an update 
     input_dict = get_input_values_somehow()
@@ -142,11 +142,11 @@ larger projects:
 
     * Our application code is readable and small; it is obvious what we are doing.
     * The way we deal with people is consistent, we always write and read the
-      same properties, no matter how we change the database or the validation & conversion methods.
+    same properties, no matter how we change the database or the validation & conversion methods.
     * Our validation & conversion code lives in a sensible place, on the Person
-      class, instead of sprinkled throughout our application in every place that we update people.
+    class, instead of sprinkled throughout our application in every place that we update people.
     * We can change any of our layers independently of each other: application logic, 
-      validation & conversion, and database persistence.
+    validation & conversion, and database persistence.
 
 
 
@@ -184,7 +184,8 @@ along with Python properties is a huge improvement over hand writing SQL. Of cou
 begs the question, "how does updating an object magically make the SQL happen?"
 
 In the examples above, we are only showing code that is *using* the ORM, but have 
-skipped the code that *sets up* our ORM and our SQLAlchemy **data model**. 
+skipped the code that *sets up* our ORM and our SQLAlchemy **domain model**, the
+collection of classes modelling the objects stored in our database. 
 We need a certain amount of housekeeping 
 code to setup a domain model such that SQLAlchemy knows what to do when we update our
 objects, and we need some housekeeping that makes SQLAlchemy talk to the database, initializing the
