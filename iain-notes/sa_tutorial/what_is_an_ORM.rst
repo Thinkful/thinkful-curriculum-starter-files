@@ -141,12 +141,15 @@ In the above example, we have accomplished a number of Very Good Things for
 larger projects:
 
     * Our application code is readable and small; it is obvious what we are doing.
+    
     * The way we deal with people is consistent, we always write and read the
-    same properties, no matter how we change the database or the validation & conversion methods.
+      same properties, no matter how we change the database or the validation & conversion methods.
+    
     * Our validation & conversion code lives in a sensible place, on the Person
-    class, instead of sprinkled throughout our application in every place that we update people.
+      class, instead of sprinkled throughout our application in every place that we update people.
+    
     * We can change any of our layers independently of each other: application logic, 
-    validation & conversion, and database persistence.
+      validation & conversion, and database persistence.
 
 
 
