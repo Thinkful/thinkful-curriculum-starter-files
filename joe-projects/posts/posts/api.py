@@ -28,7 +28,7 @@ def posts_get():
     # Get and filter the posts from the database
     posts = session.query(models.Post)
     if title_like:
-        posts = posts.filter(models.Post.title.ilike("%{}%".format(title_like)))
+        posts = posts.filter(models.Post.title.contains(title_like))
     posts = posts.all()
 
     # Convert the posts to JSON and return a response

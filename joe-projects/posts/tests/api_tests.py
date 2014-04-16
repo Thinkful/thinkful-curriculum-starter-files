@@ -94,7 +94,7 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data["message"], "Could not find post with id 1")
 
-    def testGetTitlePosts(self):
+    def testGetPostsWithTitle(self):
         """ Filtering posts by title """
         postA = models.Post(title="Post with green eggs", body="Just a test")
         postB = models.Post(title="Post with ham", body="Still a test")
