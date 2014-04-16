@@ -3,7 +3,7 @@ What is an ORM, and why use one?
 
 Broadly speaking, the purpose of an ORM is to allow us to program more *naturally* in
 an object oriented language. When working with a relational database management system (RDBMS),
- ultimately data is always stored in tables, with individual elements stored as rows. Interconnected
+ultimately data is always stored in tables, with individual elements stored as rows. Interconnected
 objects are difficult to represent this way, as the RDBMS has no inherent notion
 of a hierarchy or inheritance. Thus representing even a moderately complex object graph can require many
 joins across many tables. This is cumbersome in SQL,
