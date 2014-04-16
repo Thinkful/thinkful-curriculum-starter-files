@@ -138,7 +138,7 @@ of an object in one loop ::
    
 
 In the above example, we have accomplished a number of Very Good Things for 
-larger projects:
+larger projects
 
     * Our application code is readable and small; it is obvious what we are doing.
     
