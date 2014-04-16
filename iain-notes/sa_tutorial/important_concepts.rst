@@ -1,21 +1,29 @@
-Important Concepts in SQLAlchemy
+SQLAlchemy - Conceptual Overview
 ================================
 
-SQLAlchemy is an advanced library and supports a number of different ways of working. It is
-enormously flexible, and has been designed to ensure that one will not "outgrow" SQLAlchemy
-as a problem becomes more complex. The cost of this flexibility is that SQLAlchemy
-uses some programming concepts that are fairly advanced and not immediately obvious to a new user. 
-Understanding SQLAlchemy is a lot easier if these **design patterns** are understood at the outset,
+SQLAlchemy is very flexible and powerful toolkit, and is designed so you won't "outgrow" it  
+as your application or database becomes more complex. The cost of this flexibility is that we
+encounter some advanced programming concepts and architechtural decisions. 
+Understanding SQLAlchemy is easier if these **Design Patterns** are understood at the outset,
 and if the role of the different components in play is clear.
+
+The term "Design Pattern" is used by programmers to describe an common architectural approach
+to a solve a problem, described in a language agnostic fashion. Design Patterns enable programmers
+to communicate about problems and architecture at a higher abstract level without getting bogged
+down in code details. SQLAlchemy uses a number of design patterns and discusses these in the
+documentation. We don't need to understand exactly how they work, but it's helpful to have a 
+general idea of what a design pattern is to make reading the SQLAlchemy documentation easier.
 
 Factory Functions
 -----------------
-SQLAlchemy uses factory functions to dynamically generate *classes*. In Python, a class is itsefl an object,
-it is just a callable object that returns a new object when called. This means a class itself can be built
-and returned by a function.  
-
-A factory function that builds a class is often used in a situation where the components of the class depend on some 
-information that is not available until *runtime*.  In SQLAlchemy we see factory functions 
+SQLAlchemy uses Factory Functions to dynamically generate classes. In Python, a class is itself a first
+class object: it can be stored in variable, returned from a function, and dynamically assembled at runtime. 
+This is in contrast to compiled statically typed langugages like C or Java. A class in Python is really
+just a callable object that returns a new object, the instantiation of the class, when it is called. 
+We use the convention of writing them capitalized to make it clear that the Species class is an object
+that gets called to return a new species object. A class itself can also be built and returned by a function,
+and this is often used when the class has dependencies that can not be determined
+until *runtime*.  In SQLAlchemy we see these factory functions 
 used to build our data model base class and also to build the Session class. 
 
 The main thing to beware of here is to watch your capitalization, these are classes and should begin 
@@ -31,23 +39,37 @@ with upper case letters. ::
     class Pet(Base):
         ...etc...
 
-Once the Base class has been built by the factory function, it is used as normal just as
-if it had been imported.
+Once the Base class has returned by the factory function, it is used as normal just as
+if it had been imported. We'll see another factory function later when dealing with the
+Session object.
 
 
 Data Mapper & Declarative Base
 ------------------------------
 SQLAlchemy uses a pattern called **Data Mapper** to persist objects. In the Data Mapper pattern, 
-A data model is defined with regular Python classes, which we will refer to as our Domain Model
-classes. A separate set of objects representing the database tables are also 
-created and these are then **mapped** dynamically to our data model classes using SQLAlchemy's **mapper** function.
-The Data Mapper pattern is very flexible because it doesn't make any assumptions about how our Python
-classes map to our tables, if the database grows and we need to change our  table structure or even how many 
-tables are mapped to each class we can easily do so. 
+we create a set of regular Python classes corresponding to the real world classes of objects that we are
+persisting in the database, such as Species, Pet, and Person. Each instantiation of a class represents
+one database instance: there will be a Person object for Ben, and pet objects for Ben's cats. This 
+collection of classes is referred to as our **Domain Model**. 
 
-In **Classical Mapping**, these three components are declared separately.
-Older versions of SQLAlchemy *only* supported classical mapping, so it is worth being familiar with 
-this as you may see it in existing code. Below is an example of classical mapping, in which we setup a 
+A separate set of objects representing the database *tables* are also 
+created, one per table, and these are then **mapped** dynamically to our domain model classes using
+SQLAlchemy's **mapper** function.  The Data Mapper pattern is very flexible because it doesn't 
+make any assumptions about how our Python
+classes map to our tables: if the database grows and we need to change our table structure or even how many 
+tables are mapped to each class we can easily do so without affecting code using the domain model objects.
+
+SQLAlchemy supports two different ways of setting up the data mapper for your domain model.
+In **Classical Mapping**, the three components are declared separately (domain model classes, table objects,
+and mapper objects).  Older versions of SQLAlchemy only supported classical mapping, so it is worth being familiar with 
+this as you may see it in existing code. You will find that frequently in programming as a problem becomes more
+complex and an application grows, we wind up preferring options that involved writing more code if the result
+is increased clarity and flexibility.
+
+GOT TO HERE:
+
+ Personally I find classical mapping preferable for large applications
+where I do not have ultimate control over the database structure.  Below is an example of classical mapping, in which we setup a 
 Python class for a Species, a table object for the species table, and dynamically map them to each other ::
 
     # imports are not show in this example
