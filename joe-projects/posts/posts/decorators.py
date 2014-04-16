@@ -14,17 +14,14 @@ def accept_json(func):
         return {"message": "Request must accept JSON"}, 406
     return wrapper
 
-def require_json(methods):
+def require_json(func):
     """
     Decorator which returns a 415 Unsupported Media Type if the client sends
     something other than JSON
     """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            if (request.method not in methods or
-                request.mimetype ==  "application/json"):
-                return func(*args, **kwargs)
-            return {"message": "Request must contain JSON"}, 415
-        return wrapper
-    return decorator
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if (request.mimetype ==  "application/json"):
+            return func(*args, **kwargs)
+        return {"message": "Request must contain JSON"}, 415
+    return wrapper

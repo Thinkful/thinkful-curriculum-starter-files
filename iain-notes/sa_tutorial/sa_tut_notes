@@ -15,5 +15,24 @@ Questions:
 Cover rolling back
 
 TO DO:
-- walk through the whole tutorial using
-  sqllite
+- walk through the whole tutorial using sqllite
+
+Installing sqlite on all platforms:
+http://www.tutorialspoint.com/sqlite/sqlite_installation.htm
+
+
+- write introduction to SQLlite
+  - cover installing on all platforms
+  - connecting sqllite with python\
+  - how to make a database, list tables, describe tables;
+  .tables lists tables
+  .schema {tablename} describes table
+  .help lists commands
+  pragma table_info( {tablename} );
+- tip for folks that you can't end the . commands wth a semi-colon  
+- covering making a database 
+- after reading my piece, they should go read
+  http://www.sqlite.org/sqlite.html
+
+write content piece Introduction to Relational Databases, 
+Sqllite. and Postgres.
