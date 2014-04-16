@@ -1,7 +1,6 @@
 import unittest
 import os
 import json
-import datetime
 from urlparse import urlparse
 
 # Configure our app to use the testing databse
@@ -95,19 +94,17 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data["message"], "Could not find post with id 1")
 
-    def testGetMonthsPosts(self):
-        """ Getting posts from a specific month """
-        now = datetime.datetime.now()
-        month = datetime.timedelta(days=31)
+    def testGetTitlePosts(self):
+        """ Filtering posts by title """
+        postA = models.Post(title="Post with green eggs", body="Just a test")
+        postB = models.Post(title="Post with ham", body="Still a test")
+        postC = models.Post(title="Post with green eggs and ham",
+                            body="Another test")
 
-        oldPost = models.Post(title="Old post", body="Posted last month",
-                       datetime=now - month)
-        newPost = models.Post(title="New post", body="Posted this month")
-
-        session.add_all([oldPost, newPost])
+        session.add_all([postA, postB, postC])
         session.commit()
 
-        response = self.client.get("/api/posts?month={}".format(now.month),
+        response = self.client.get("/api/posts?title_like={}".format("ham"),
             headers=[("Accept", "application/json")]
         )
 
@@ -115,11 +112,15 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.mimetype, "application/json")
 
         posts = json.loads(response.data)
-        self.assertEqual(len(posts), 1)
+        self.assertEqual(len(posts), 2)
 
         post = posts[0]
-        self.assertEqual(post["title"], "New post")
-        self.assertEqual(post["body"], "Posted this month")
+        self.assertEqual(post["title"], "Post with ham")
+        self.assertEqual(post["body"], "Still a test")
+
+        post = posts[1]
+        self.assertEqual(post["title"], "Post with green eggs and ham")
+        self.assertEqual(post["body"], "Another test")
 
     def testPostPost(self):
         """ Posting a new post """
@@ -184,5 +185,16 @@ class TestAPI(unittest.TestCase):
 
         data = json.loads(response.data)
         self.assertEqual(data["message"], "'body' is a required property")
+
+    def testUnsupportedAcceptHeader(self):
+        response = self.client.get("/api/posts",
+            headers=[("Accept", "application/xml")]
+        )
+
+        self.assertEqual(response.status_code, 406)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data)
+        self.assertEqual(data["message"], "Request must accept JSON")
 
 

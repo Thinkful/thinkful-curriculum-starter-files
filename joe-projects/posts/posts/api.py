@@ -23,13 +23,13 @@ post_schema = {
 def posts_get():
     """ Get a list of posts """
     # Get the querystring arguments
-    month = request.args.get("month")
+    title_like = request.args.get("title_like")
 
     # Get and filter the posts from the database
-    posts = session.query(models.Post).all()
-    if month:
-        posts = [post for post in posts
-                 if post.datetime.month == int(month)]
+    posts = session.query(models.Post)
+    if title_like:
+        posts = posts.filter(models.Post.title.ilike("%{}%".format(title_like)))
+    posts = posts.all()
 
     # Convert the posts to JSON and return a response
     data = json.dumps([post.asDictionary() for post in posts])
