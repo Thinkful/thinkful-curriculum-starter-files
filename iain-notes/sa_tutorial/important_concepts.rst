@@ -59,27 +59,23 @@ make any assumptions about how our Python
 classes map to our tables: if the database grows and we need to change our table structure or even how many 
 tables are mapped to each class we can easily do so without affecting code using the domain model objects.
 
-SQLAlchemy supports two different ways of setting up the data mapper for your domain model.
+SQLAlchemy supports two different ways of setting up your domain model and data mappers.
 In **Classical Mapping**, the three components are declared separately (domain model classes, table objects,
 and mapper objects).  Older versions of SQLAlchemy only supported classical mapping, so it is worth being familiar with 
-this as you may see it in existing code. You will find that frequently in programming as a problem becomes more
+this as you may see it in existing code. You will also find that frequently in programming as a problem becomes more
 complex and an application grows, we wind up preferring options that involved writing more code if the result
-is increased clarity and flexibility.
-
-GOT TO HERE:
-
- Personally I find classical mapping preferable for large applications
-where I do not have ultimate control over the database structure.  Below is an example of classical mapping, in which we setup a 
-Python class for a Species, a table object for the species table, and dynamically map them to each other ::
+is increased clarity and flexibility. Some programmers prefer classical mapping for very complex databases or 
+for situations where they are not in control over the database strucure. Below is an example of classical mapping,
+in which we setup a Python class for a Species, a table object for the species table, and dynamically map them to each other ::
 
     # imports are not show in this example
     
-    # a plain old Python class with a repr method"
+    # a plain old Python class with a repr method
     class Species(object):
         def __repr__(self):
             return "Species: %s" % self.name
 
-    # a table definition, that describes our SQL table
+    # a table object describing our speciesl table
     species_table = Table( metadata, 
         Column('id', Integer, primary_key=True)
         Column('name', String(128), nullable=False)
@@ -89,18 +85,18 @@ Python class for a Species, a table object for the species table, and dynamicall
     mapper(Species, species_table)
     
 
-This differs from an **Active Record** ORM, in which a the domain model class also includes the table
+This pattern differs from an **Active Record** ORM, in which the domain model class also includes the table
 definition information and we always have a one-to-one correspondence between domain 
 model classes and database tables. (The Django ORM and the ORM for Ruby on Rails are Active Record ORMs)
-Many people find the Active Record pattern easier to read, so SQLAlchemy now provides an
+Many people find the Active Record pattern easier to read and less work to setup, so SQLAlchemy now provides an
 alternate declaration style called  **Declarative Base**. When we use Declarative Base, our domain model
-definition *looks* like an Active Record ORM, the table information is contained in the class definition
-itself. Under the hood, however, SQLAlchemy is still using the Data Mapper pattern: the class
-definition creates a Table object and calls the mapper function to map them together. 
+definition *looks* like an Active Record ORM: the table information is contained in the class definition
+itself. However, under the hood, SQLAlchemy is still using the Data Mapper pattern: the class
+definition actually creates a table object and calls the mapper function to map them together. 
 This has the advantage of allowing us the extra flexibility of arbitrarily mapping domain 
-model classes to tables should we need this for our application. Below is an example
-of using the declarative base method, in which we use the declarative_base function to generate
-our domain model's base class. This bass class will take care of generating
+model classes to tables should we need this later as complexity grows. Below is an example
+of using the declarative base method, in which we use the declarative_base factory function to generate
+our domain model's base class. This base class will take care of generating
 our data mapper boilerplate for us ::
 
     Base = declarative_base()
@@ -114,32 +110,87 @@ our data mapper boilerplate for us ::
         def __repr__(self):
             return "Species: %s" % self.name
 
+        # an optional constructor that sets attributes from kwargs
+        def __init__(self, **kwargs):
+            for key,value in kwargs.items():
+                setattr(self, key, value)
 
 You can see that this is less typing and easier to follow. Functionally, they are
 identical and we can switch between the two patterns any time.
 
 Note that the table describing attributes are specified as *class* attributes, not instance variables:
 they are not inside an __init__ method and are not attached to *self*. This pattern of using
-class variables as a schema definition language is common in many Python frameworks. 
+class variables as a schema definition language is common in many Python frameworks. You may
+be asking yourself how this is possible, we can see the constructor and it's not doing anything
+unusual. The answer is that Base class uses a *metaclass* that changes how the class itself is constructed; it 
+adds a stage that SQLAlchemy calls **Instrumentation** in which the named Column attributes are
+turned into a table object and a mapper is called using the class and the table object. We don't
+need to concern ourselves further with *how* instrumentation happens as long as we understand
+that the resulting objects are special objects with mappers already attached and that they 
+work functionally the same way as classical mapping.
 
 
-Engine & Metadata
------------------
+Engine
+------
 In SQLAlchemy, connections to the database itself are handled through an engine,
-which we instantiate by passing in a database connection string ::
+which we instantiate by passing in a database connection string, and some optional
+flags. ::
 
     from sqlalchemy import create_engine
     # connect to the database, asking for SQL statements to be echoed to the log
     engine = create_engine('sqlite:///:memory:', echo=True)
 
-Information about our domain model is stored on a MetaData object, which acts
-as a **registry** for all our domain model classes. This is accessible as
-an attribute on our Base class, **Base.metadata**. The MetaData object keeps track of all classes,
-tables, and mappers used in our domain model. The metadata object, however, has no 
-reference to specific database until it is bound to the engine. Only when it is bound
-to the engine can it actually execute SQL commands to our database. For example,
-we can drop all our tables and recreate them by using helper methods on the metadata object,
-to which we pass a reference to our engine ::
+By passing in a True flag for echo, we can see all the resulting SQL in the terminal
+as our application runs. The engine variable we have created will act as our handle
+to the actual database, before information from our domain model can get to the database,
+we will need to attach our domain model somehow to an instantiated engine.
+
+
+The MetaData Object
+-------------------
+All the information describing our domain model is collected in one master registry,
+an instance of the SQLAlchemy **MetaData** class normally named **metadata**. 
+The MetaData object keeps track of all classes, tables, and mappers used in our domain model,
+it is how the domain model classes are aware of each other and of each other's tables for
+managing relationships between tables and classes. Only one metadata object gets created for
+your domain model, it's the train station for the domain model. ::
+
+When using classical mapping, you will explictly create this metadata object using 
+the MetaData class, and you'll pass it as a paramater when creating table objects. ::
+
+    metatada = MetaData()
+    
+    species_table = Table('species', metadata,
+        Column('id', Integer, primary_key=True),
+        Column('name', Text, nullable=False)
+    )    
+    pet_table = Table('pet', metadata,
+        Column('id', Integer, primary_key=True),
+        Column('name', Text, nullable=False)
+        ... etc ...
+    )
+        
+When using declarative base, the metadata object is created for us by the declarative 
+base factory function, and it's attached to the Base class as an attribute: **Base.metadata**.
+It's still the same thing, our one and only domain model registry. If you are looking
+at examples of SQLAlchemy code, you may encounter mixtures of both classical mapping
+and declarative base mapping, just remember that you need to replace references to 
+**metadata** with **Base.metadata** if you created the metadata object implicityly as
+part of your declarative base function instead of explicitly with the MetaData class 
+(and of course the reverse).
+
+Binding MetaData
+----------------
+Once our domain model classes and tables are created, we can get at them all 
+through the metadata registry. However, the metadata has no reference to a specific
+database: it has not been connected to our engine. In SQLAlchemy, connecting metadata 
+to an engine is called **binding**. This can happen explicitly in classical mapping,
+or implicitly in declarative base mapping, but it has to happen *somewhere* before
+any SQL can get to our database.
+
+An example of this happening implicity is shown below, using the Base classes metadata
+reference to drop and create all our tables in a database. We pass a reference to
+an engine in as a paramater and the binding happens in the method call ::
 
     # this comes *after* defining our model classes
     # and instantiating our engine
@@ -147,30 +198,20 @@ to which we pass a reference to our engine ::
     # drop and create all our tables
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
-    
-Normally we can set up the engine and Base class and just forget about them, however
-when things aren't working it's very helpful to understand which component is doing what for 
-debugging and making sense of the SQLAlchemy stack traces (the error output in the console).
-A common error is getting the creation of the different components out of order when refactoring
-a single file application into multiple files. It helps to remember the following:
 
-    * when a module is imported, all its code runs
-    * we need to create the Base class before defining data model classes
-    * we need to create the engine before any calls to metadata methods
+Dropping and creating tables is not something we do every day of course. 
+In normal use, we use another component to manage the binding between our database
+engine and domain model, the **Session**. We'll get to the session shortly
+after a brief detour to recap where we are so far. 
 
-If you are having issues sorting out what runs when, use the log to see the order
-of execution in your terminal.
-
-
-Unit of Work and The Session
-----------------------------
-Once we have our domain model defined, we can start creating objects that we'd like
-to have persisted to the database. To recap our example, this is what we have so far ::
+At this point, we have our domain model defined, and we can start creating objects that we'd like
+to have persisted to the database. ::
 
     from sqlalchemy import create_engine
     from sqlalchemy.ext.declarative import declarative_base
    
     engine = create_engine('sqlite:///:memory:', echo=True)
+    
     Base = declarative_base()
 
     class Species(Base):
@@ -182,50 +223,58 @@ to have persisted to the database. To recap our example, this is what we have so
         def __repr__(self):
             return "Species: %s" % self.name
 
+        # we don't need to make an init method
+        # Base actually gives us one free that sets kwargs as attributes
 
-After the above has executed, we can create some species objects. Note that we have not defined an init method,
-but the Base class gives us one that will take keyword args and set them 
-as attributes on the object, so we can do the following ::
-
+    # now we make some objects
+    # SQLAlchemy will take care of generating the primary key for us
     cat = Species(name="Cat")     
+    dog = Species(name="Dog")
 
-This creates a cat object, but does it write to the database? 
+
+This creates a cat and dog object, but does it write to the database? 
 If we trace through our code, we can see that:
     
-    * we have an engine, connected to our database
-    * we have defined a domain model, with classes registered in the metadata registry at Base.metadata
-    * we have created an object using this class, which we know has a connection to the metadata through the 
-      parent class
+    * we have an engine, handling our connection to our database
+    * we have defined a domain model, registered in the metadata object at Base.metadata
+    * we have created some object using our domain model class
 
-However, we don't have the metadata connected to the engine anywhere, so our new object
-has no way of actually getting to the database. This is the job of the **Session**. 
+However, we have not yet bound the metadata to the engine anywhere, so our new object
+has no way of actually getting to the database. This is where the **Session** comes into play.
 
+
+The Session
+-----------
 The Session acts as the intermediary between our data model and our actual database. It binds an
-engine to a metadata registry, and keeps track
-of objects that should be persisted, tracking whether they have changed, and ultimately 
-generating and executing the SQL commands.
+engine to a metadata registry, and keeps track of all the objects that should be persisted. It 
+manages creating or deleting objects when we retrieve an object from the database using a query, and
+it tracks whether any objects we have created or retreived have changed. When we ask it
+to save, it takes care of generating and executing the SQL commands for creation, update,
+or delete of objects. 
 
 We see a factory function used again to get our Session *class*, and this class is then
-used to generate our session object, that is used for one interactive session of reading
-and writing to the database. Normally we will only be using one engine and
+used to generate a session object, used for one interactive session of reading
+and writing to the database. (Normally we will only be using one engine and
 one session at a time, but SQLAlchemy is designed to be flexible enough to work with
 multiple databases at once, so it is conceivable that one might have multiple session
-factories and session handlers. In the example below, we build our Session class with
-the **sessionmake** function and then instantiate a local session object using the 
-Session class ::
+factories and session handlers.) In the example below, we build our Session class with
+the **sessionmake** factory function and then use it to instantiate a local session object,
+passing in a reference to the engine to use in binding. Our local variable, **db_session**,
+will be used as our database handle for the duration of our script :: 
 
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     db_session = Session()
     
-We can then use this session object to query our database and to persist new objects
+We can now use our session object to query our database to get objects, and to persist new objects
 to the database by adding them to the session. Queries will execute immediately,
 but adding new objects to the db or updating existing objects requires us to
 to **commit the session**. At that point, the SQL for creation and update is
 executed. When we are done with our session, we close it. ::
 
     # now we can use db_session to execute queries
-    # cound our species, this query executes immediately
+    
+    # count our species, this query executes immediately
     num_species = db_session.query(Species).count()
 
     # make a new species and add to the session
@@ -241,6 +290,75 @@ executed. When we are done with our session, we close it. ::
     db_session.close()
 
 
+The astute reader may wonder again where we made our connection between our
+metadata and the engine. The session can't do anything until it receives 
+either classes or objects created with our domain model classes. It is through
+these classes or objects that it has access to the metadata. In the case of
+queries, we pass in a class as an argument ::
+    
+    num_species = db_session.query(Species).count()
+
+And in the case of creating objects, we add the instantiated object to the 
+session ::
+
+    rabbit = Species(name='Rabbit')
+    db_session.add(rabbit)
+    
+
+Session States
+--------------
+Any instances of our domain model classes will have a **Session state** relative 
+to the session: they can be **transient**, **pending**, **persistent**, or **detached**.
+
+When we create our rabbit object, it gets created in the Transient state. It has
+no corresponding record in the database, and thus the value of **rabbit.id** is None.
+Because we haven't added it to the session, if we exit our script before adding the rabbit
+to the session, no rabbit record gets saved. Dog gets added to the session and thus on
+commit it gets persisted and then as an ID value corresponding to the database primary key ::
+
+    # make the dog species and rabbit species 
+    dog = Species(name='Dog')
+    rabbit = Species(name='Rabbit')
+
+    # dog and rabbit are transient and have no DB id
+    assert dog.id == None
+    assert rabbit.id == None
+
+    # add dog to the session, but not rabbit
+    # dog is now in the Pending state, will be persisted on next commit
+    db_session.add(dog)
+
+    # dog is Pending, but id is still None!        
+    assert dog.id == None    
+
+    # commit: generate and executing the SQL for dog only
+    db_session.commit()
+
+    # dog is now in the Persistent state, and has a db id 
+    assert dog.id != None
+
+    # all done, close the session object, no rabbit created
+    db_session.close()
+
+    # rabbit is still transient, did not get persisted and is discarded on exit
+    assert rabbit.id == None
+
+
+If you are having troubles figuring out what state an object is in you can
+use the SQLAlchemy **inspect** function ::
+
+    from sqlalchemy import inspect
+    dog_inspection = inspect(dog)
+    log.debug(" dog is persistent? %s" % dog_inspection.persistent )
+
+
+For completeness we'll mention that the final state is **Detached**,
+meaning the object has a record in the database
+but is not in the session. This can happen if you remove a retreived object
+from a session but isn't something we'll concern ourselves with further here.
+
+
+
 Unit of Work
 ------------
 In the example above, we see that the session is used to keep track of new items
@@ -248,30 +366,33 @@ we want to persist: we add them to the session, and when we are done, we ask the
 session to commit, at which point all the SQL for generating every new object in 
 the session is executed. This is called the Unit of Work pattern: 
 the session keeps a running tally for us of everything
-that should result in a database change then executes all the pending changes at once
-on commit.  This makes it easy for us to make many changes in Python code but know
-that they will all either work or be rolled back on error. For example, here we
+that should ultimately result in a database change, and then executes all the pending changes at once
+on a commit or flush. 
+
+This makes it possible for us to make many changes in Python code but know
+that they will all either work or be rolled back on error. In the example below we
 create a species and edit a species, try to commit, and rollback our changes
 on any error. Note that in the example below, the rabbbit species does not
 need to be added to the session for saving because we retreived it from the
-database using the sessions query attribute. In this case the rabbit species
-is already tracked by the session object and changes will be written to our
-db when we commit ::
+database using the session, it's already in our session objects map of objects
+to keep a tally on. Because the rabbit object *came from* the session, any 
+changes to it are also tracked  will be written to our
+database when we ask the session to commit ::
 
     # create a session object
     db_session = Session() 
     
-    # retrieve the rabbit species, automatically in the session
+    # retrieve the rabbit species, it's automatically in the session
     rabbit = db_session.query(Species).filter_by(name='Rabbit').one()
 
-    # edit rabbit, does NOT write changes at this point
+    # edit rabbit, does NOT write changes to db at this point
     rabbit.name = 'Bunny Rabbit'
     
-    # create hamster
+    # create hamster, add it to the session
     hamster = Species(name='Hamster')
     session.add(hamster)
 
-    # commit, creating hamster and updating rabbit
+    # commit, creating hamster and updating rabbit in the database
     try:
         db_session.commit()
     except:
@@ -280,8 +401,15 @@ db when we commit ::
     finally:
         db_session.close()        
 
+If we are not using a transactional database, we would replace the calls to
+**db_session.commit()** with calls to **db_session.flush()**. Both methods ask
+the session to write all the SQL in the current Unit of Work to the database.
+There is even an option to have SQLAlchemy write all changes immediately, though
+this is less commonly used. We can instantiate the engine with an autoflush or autocommit
+flag ::
 
-Identity Map
+
+Identity Map 
 ------------
 The session is also smart about keeping track of instances of objects that come from the database.
 It does this by keeping an Identity Map of all instances of our domain model classes.
