@@ -17,17 +17,17 @@ general idea of what a design pattern is to make reading the SQLAlchemy document
 Factory Functions
 -----------------
 SQLAlchemy uses Factory Functions to dynamically generate classes. In Python, a class is itself a first
-class object: it can be stored in variable, returned from a function, and dynamically assembled at runtime. 
+class object: it can be stored in a variable, returned from a function, and dynamically assembled by other code. 
 This is in contrast to compiled statically typed langugages like C or Java. A class in Python is really
-just a callable object that returns a new object, the instantiation of the class, when it is called. 
-We use the convention of writing them capitalized to make it clear that the Species class is an object
-that gets called to return a new species object. A class itself can also be built and returned by a function,
+just a callable object that, when called, returns a new object: the instantiation of the class. 
+We use the convention of writing classes capitalized to make their role clear. The Species class is an object
+that gets called to return a new species object. A class *itself* can also be built and returned by a function,
 and this is often used when the class has dependencies that can not be determined
 until *runtime*.  In SQLAlchemy we see these factory functions 
 used to build our data model base class and also to build the Session class. 
 
-The main thing to beware of here is to watch your capitalization, these are classes and should begin 
-with upper case letters. ::
+The main thing to beware of here is to watch your capitalization; remember that the returned objects
+are classes and should begin with upper case letters. ::
 
     # import the declarative_base factory function
     from sqlalchemy.ext.declarative import declarative_base
@@ -35,11 +35,11 @@ with upper case letters. ::
     # dynamically build our base class
     Base = declarative_base()
 
-    # use our base class
+    # now use our base class
     class Pet(Base):
         ...etc...
 
-Once the Base class has returned by the factory function, it is used as normal just as
+Once the Base class has been returned by the factory function, it is used as normal just as
 if it had been imported. We'll see another factory function later when dealing with the
 Session object.
 
@@ -49,22 +49,28 @@ Data Mapper & Declarative Base
 SQLAlchemy uses a pattern called **Data Mapper** to persist objects. In the Data Mapper pattern, 
 we create a set of regular Python classes corresponding to the real world classes of objects that we are
 persisting in the database, such as Species, Pet, and Person. Each instantiation of a class represents
-one database instance: there will be a Person object for Ben, and pet objects for Ben's cats. This 
+one database record: there will be a Person object for Ben, and a series of pet objects for Ben's cats. This 
 collection of classes is referred to as our **Domain Model**. 
 
 A separate set of objects representing the database *tables* are also 
 created, one per table, and these are then **mapped** dynamically to our domain model classes using
 SQLAlchemy's **mapper** function.  The Data Mapper pattern is very flexible because it doesn't 
-make any assumptions about how our Python
-classes map to our tables: if the database grows and we need to change our table structure or even how many 
-tables are mapped to each class we can easily do so without affecting code using the domain model objects.
+make any assumptions about how our Python classes are mapped to our tables: 
+if the database grows and we need to change our table structure or even how many 
+tables are mapped to each class, we can easily do so without affecting code that is already 
+using the domain model objects.
 
 SQLAlchemy supports two different ways of setting up your domain model and data mappers.
 In **Classical Mapping**, the three components are declared separately (domain model classes, table objects,
 and mapper objects).  Older versions of SQLAlchemy only supported classical mapping, so it is worth being familiar with 
 this as you may see it in existing code. You will also find that frequently in programming as a problem becomes more
 complex and an application grows, we wind up preferring options that involved writing more code if the result
-is increased clarity and flexibility. Some programmers prefer classical mapping for very complex databases or 
+is increased clarity and flexibility. All software architecture decisions involve trade offs, and it's wise
+to distrust anyone saying that one style is always the best! That which is the most effective use of 
+resources for a small project with a manageable number of domain model classes and a limited database is not
+necessarily the best us of resources for a project like Amazon. 
+
+Some programmers prefer classical mapping for very complex databases or 
 for situations where they are not in control over the database strucure. Below is an example of classical mapping,
 in which we setup a Python class for a Species, a table object for the species table, and dynamically map them to each other ::
 
@@ -75,29 +81,31 @@ in which we setup a Python class for a Species, a table object for the species t
         def __repr__(self):
             return "Species: %s" % self.name
 
-    # a table object describing our speciesl table
+    # a table object describing our species table
     species_table = Table( metadata, 
         Column('id', Integer, primary_key=True)
         Column('name', String(128), nullable=False)
     )
 
     # call the mapper function to map them to each other
+    # this might even happen in a different module, so long as the
+    # above class and table have been imported
     mapper(Species, species_table)
     
 
 This pattern differs from an **Active Record** ORM, in which the domain model class also includes the table
-definition information and we always have a one-to-one correspondence between domain 
-model classes and database tables. (The Django ORM and the ORM for Ruby on Rails are Active Record ORMs)
+definition and we always have a one-to-one correspondence between domain 
+model classes and database tables. (For example, the Django ORM and the ORM for Ruby-on-Rails are Active Record ORMs.)
 Many people find the Active Record pattern easier to read and less work to setup, so SQLAlchemy now provides an
 alternate declaration style called  **Declarative Base**. When we use Declarative Base, our domain model
 definition *looks* like an Active Record ORM: the table information is contained in the class definition
 itself. However, under the hood, SQLAlchemy is still using the Data Mapper pattern: the class
-definition actually creates a table object and calls the mapper function to map them together. 
+definition actually creates a separate table object and calls the mapper function to map them together. 
 This has the advantage of allowing us the extra flexibility of arbitrarily mapping domain 
-model classes to tables should we need this later as complexity grows. Below is an example
+model classes to tables should we need it later as complexity grows. We can move anytime between Classical
+Mapping and Declarative Base. Below is an example
 of using the declarative base method, in which we use the declarative_base factory function to generate
-our domain model's base class. This base class will take care of generating
-our data mapper boilerplate for us ::
+our domain model's base class. This base class then  generates our data mapper boilerplate for us ::
 
     Base = declarative_base()
     
@@ -115,8 +123,9 @@ our data mapper boilerplate for us ::
             for key,value in kwargs.items():
                 setattr(self, key, value)
 
-You can see that this is less typing and easier to follow. Functionally, they are
-identical and we can switch between the two patterns any time.
+You can see that this is less typing and easier to follow. But functionally, they are
+identical and we can switch between the two patterns any time. You will find that most recent example code
+for SQLAlchemy uses Declarative Base.
 
 Note that the table describing attributes are specified as *class* attributes, not instance variables:
 they are not inside an __init__ method and are not attached to *self*. This pattern of using
