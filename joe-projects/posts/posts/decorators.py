@@ -25,6 +25,6 @@ def require_json(func):
     def wrapper(*args, **kwargs):
         if (request.mimetype ==  "application/json"):
             return func(*args, **kwargs)
-        data = json.dumps({"message": "Request must accept JSON"})
+        data = json.dumps({"message": "Request must contain JSON"})
         return Response(data, 415, mimetype="application/json")
     return wrapper
