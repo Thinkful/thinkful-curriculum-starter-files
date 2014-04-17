@@ -355,61 +355,60 @@ use the SQLAlchemy **inspect** function ::
 For completeness we'll mention that the final state is **Detached**,
 meaning the object has a record in the database
 but is not in the session. This can happen if you remove a retreived object
-from a session but isn't something we'll concern ourselves with further here.
+from a session, but isn't something we'll concern ourselves with further here.
 
 
 
-Unit of Work
-------------
+Unit of Work and the Indentity Map
+----------------------------------
 In the example above, we see that the session is used to keep track of new items
 we want to persist: we add them to the session, and when we are done, we ask the 
 session to commit, at which point all the SQL for generating every new object in 
 the session is executed. This is called the Unit of Work pattern: 
 the session keeps a running tally for us of everything
 that should ultimately result in a database change, and then executes all the pending changes at once
-on a commit or flush. 
+as one unit on a commit or flush. 
 
-This makes it possible for us to make many changes in Python code but know
+This makes it possible for us to make many changes in Python code, distributed
+among different methods even, but know
 that they will all either work or be rolled back on error. In the example below we
 create a species and edit a species, try to commit, and rollback our changes
 on any error. Note that in the example below, the rabbbit species does not
 need to be added to the session for saving because we retreived it from the
-database using the session, it's already in our session objects map of objects
-to keep a tally on. Because the rabbit object *came from* the session, any 
-changes to it are also tracked  will be written to our
-database when we ask the session to commit ::
+database using the session; it's already in our session object's map of tracked objects
+and begins in the Persistent state. This also means that any changes to the
+rabbit will be written to the database on the next commit or flush. ::
 
     # create a session object
     db_session = Session() 
     
-    # retrieve the rabbit species, it's automatically in the session
+    # retrieve the rabbit species, 
+    # it's automatically in the session and has state Persistent
     rabbit = db_session.query(Species).filter_by(name='Rabbit').one()
 
-    # edit rabbit, does NOT write changes to db at this point
+    # we can look at rabbit's ID:
+    log.debug("retrieved rabbit, id: %s" % rabbit.id)
+
+    # edit rabbit, does not write changes to db yet
     rabbit.name = 'Bunny Rabbit'
     
     # create hamster, add it to the session
     hamster = Species(name='Hamster')
-    session.add(hamster)
-
-    # commit, creating hamster and updating rabbit in the database
+    guinea_pig = Species(name='Guinea Pig')
+    # add both new items at once
+    session.add_all( [hamster, guinea_pig] )
+    
+    # commit, creating hamster/guinea_pig & updating rabbit in the database
     try:
         db_session.commit()
     except:
-        # on error, neither hamster creation or rabbit edit will be persisted    
+        # rollback on error, 
+        # neither hamster/guinea_pig creation nor rabbit edit will be persisted    
         db_session.rollback()
     finally:
         db_session.close()        
 
-If we are not using a transactional database, we would replace the calls to
-**db_session.commit()** with calls to **db_session.flush()**. Both methods ask
-the session to write all the SQL in the current Unit of Work to the database.
-There is even an option to have SQLAlchemy write all changes immediately, though
-this is less commonly used. We can instantiate the engine with an autoflush or autocommit
-flag ::
 
-
-Identity Map 
 ------------
 The session is also smart about keeping track of instances of objects that come from the database.
 It does this by keeping an Identity Map of all instances of our domain model classes.
