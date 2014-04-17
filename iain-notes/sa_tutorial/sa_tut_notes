@@ -1,0 +1,38 @@
+Notes on the SA tutorial:
+
+Sections:
+- what is an orm and why use one - DRAFT
+
+- setting up SQLAlchemy
+  - engine, metadata, concept of data mapper, unit of work
+  - the metadata registry, on Base.metadata
+  - the concept of the identity map  
+
+
+Questions:
+- have they used logging and pdb yet??
+ 
+Cover rolling back
+
+TO DO:
+- walk through the whole tutorial using sqllite
+
+Installing sqlite on all platforms:
+http://www.tutorialspoint.com/sqlite/sqlite_installation.htm
+
+
+- write introduction to SQLlite
+  - cover installing on all platforms
+  - connecting sqllite with python\
+  - how to make a database, list tables, describe tables;
+  .tables lists tables
+  .schema {tablename} describes table
+  .help lists commands
+  pragma table_info( {tablename} );
+- tip for folks that you can't end the . commands wth a semi-colon  
+- covering making a database 
+- after reading my piece, they should go read
+  http://www.sqlite.org/sqlite.html
+
+write content piece Introduction to Relational Databases, 
+Sqllite. and Postgres.
