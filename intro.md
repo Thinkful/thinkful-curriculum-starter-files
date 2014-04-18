@@ -1,6 +1,6 @@
 ## Course Objective
 
-In this class you will learn the core skills required to program professionally using Python. You'll learn how to work with spreadsheets, REST APIs, databases, and the Flask web framework. You'll also learn about test driven development (TDD), which is an approach to writing software that can produce more reliable, maintainable code. By the end of this course, you'll have a portfolio of completed projects that demonstrate the skills you've learned, and the know how to use Python in professional settings.
+In this class you will learn the core skills required to program professionally using Python. You'll learn how to work with spreadsheets, REST APIs (both consuming and creating them), databases, and the Flask web framework. You'll also learn about test driven development (TDD), which is an approach to writing software that can produce more reliable, maintainable code. By the end of this course, you'll have a portfolio of completed projects that demonstrate the skills you've learned, and the know how to use Python in professional settings.
 
 ## Course Structure
 
