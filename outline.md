@@ -17,9 +17,10 @@
 
 **Assignments**
 
-*	A1
-*	A2
-*	A3
+*	HTML & CSS Review
+*	Command Line Refresh
+*	Git and Github Refresh
+*   Web Basics Challenge
 
 ### 2: A Gentle Introduction to Python
 **Intro**
