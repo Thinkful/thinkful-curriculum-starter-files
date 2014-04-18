@@ -2,6 +2,17 @@
 
 In this class you will learn the core skills required to program professionally using Python. You'll learn how to work with spreadsheets, REST APIs, databases, and the Flask web framework. You'll also learn about test driven development (TDD), which is an approach to writing software that can produce more reliable, maintainable code. By the end of this course, you'll have a portfolio of completed projects that demonstrate the skills you've learned, and the know how to use Python in professional settings.
 
+## Course Structure
+
+This course consists of five units. Unit 1 guides you through setting up your development environment and programming basics in Python. It also contains review materials to refresh your knowledge of HTML, CSS, Git and Github, and working from the command line.
+
+In Unit 2, we'll start applying the building blocks we mastered in Unit 1 to write programs that read from and write to spreadsheets and send data to and get data from APIs. We'll also learn about test driven development and get experience writing unit tests.
+
+In Unit 3, we'll focus on working with databases. We'll start out with a crash course on SQL, then we'll go on to discuss working with Postgres and SQL Alchemy with Python. 
+
+In Units 4 and 5, we'll focus on writing web apps using the Flask web framework. Unit 4 focuses on writing "traditional" server side web apps where the server delivers fully baked HTML, CSS, and JavaScript content. Unit 5 focuses on writing web apps as APIs where the server delivers static files and these static files make asynchronous calls to API endpoints on the server. In both cases, we'll teach you how to do test-driven web development. 
+
+The final project for the course is your capstone project, which you'll define in dialogue with your mentor, and which you should start thinking about early on. 
 
 ## Learning Paths
 
