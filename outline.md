@@ -30,7 +30,6 @@
 *	What is Python and What Do You Do With It? (content)
 *	Python Basics at Codecademy (drills)
 *	Understanding Python (content)
-*	Python Koans (drills)
 
 
 ## Unit 1: Programming Basics in Python
