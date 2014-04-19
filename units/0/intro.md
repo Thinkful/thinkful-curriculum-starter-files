@@ -4,8 +4,7 @@ The goal of this unit is to get you back into the programming mindset if you're 
 
 **Goals**
 
-*	Review and demonstrate mastery of HTML and CSS basics
-*	Refresh on command line
-*   Know how to use Python Koans to build your knowledge of Python
-*   Familiarity with numbers, strings, and date time objects in Python.
+*	Review and demonstrate mastery of HTML, CSS, Git, Github, and command line basics
+*   High level introduction to Python as a programming language
+*   Familiarity with numbers, strings, and date time objects in Python
 
