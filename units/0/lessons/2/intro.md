@@ -2,6 +2,7 @@
 [//]: <> (author: Benjamin White)
 [//]: <> (type: introduction)
 
+# A Gentle Introduction to Python
 ### Overview
 
 In this lesson, you'll read up on the Python programming to language to get some helpful background knowledge about how Python compares to other languages. After that, you'll work through a series of easy exercises at Codecademy that go over the basics of working with variables, strings, numbers,and datetime objects in Python.
