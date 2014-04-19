@@ -17,9 +17,10 @@
 
 **Assignments**
 
-*	A1
-*	A2
-*	A3
+*	HTML & CSS Review
+*	Command Line Refresh
+*	Git and Github Refresh
+*   Web Basics Challenge
 
 ### 2: A Gentle Introduction to Python
 **Intro**
@@ -29,7 +30,6 @@
 *	What is Python and What Do You Do With It? (content)
 *	Python Basics at Codecademy (drills)
 *	Understanding Python (content)
-*	Python Koans (drills)
 
 
 ## Unit 1: Programming Basics in Python
