@@ -7,3 +7,6 @@ The Python Koans
 Crash course on TDD (very very basic idea of asserting and verifying that assertions are correct -- value of this). Koans teach this way of thinking, while also teaching about aspects of the Python language.
 
 work through these at your own pace. the sooner you can complete them the better. will get you thinking in terms of tests and force you to learn about features of language. try to do one or two a day everyday, even if you don’t do anything else.
+
+
+We also introduce [Python Koans](https://github.com/gregmalcolm/python_koans/wiki), which is a platform for learning about features of the Python language and testing at the same time. 
