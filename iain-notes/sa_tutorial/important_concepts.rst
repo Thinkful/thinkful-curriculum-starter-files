@@ -274,7 +274,10 @@ will be used as our database handle for the duration of our script ::
     from sqlalchemy.orm import sessionmaker
     Session = sessionmaker(bind=engine)
     db_session = Session()
-    
+
+# TODO: demonstrate how to do this if engine has not been created at time of sessionmaker call
+
+
 We can now use our session object to query our database to get objects, and to persist new objects
 to the database by adding them to the session. Queries will execute immediately,
 but adding new objects to the db or updating existing objects requires us to
@@ -418,12 +421,13 @@ rabbit will be written to the database on the next commit or flush. ::
         db_session.close()        
 
 
-------------
-The session is also smart about keeping track of instances of objects that come from the database.
-It does this by keeping an Identity Map of all instances of our domain model classes.
+The session is also smart about keeping track of instances of objects that come from 
+or should be persisted to the database. It does this by keeping an **Identity Map** of
+all the objects persisted in the database. 
 This allows the session to know that if we query the session in two different sections of code
 and get two seperate references to objects that correspond to the same database record, the
-objects should actually be identical. 
+objects should actually be identical and should be treated as equal.
+ 
 
 
 
