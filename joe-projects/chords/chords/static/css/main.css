@@ -36,6 +36,7 @@ div#songs {
     height: 100%;
     background-color: #252A3A;
     color: #FFFFFF;
+    overflow: auto;
 }
 
 div#songs .pure-menu {

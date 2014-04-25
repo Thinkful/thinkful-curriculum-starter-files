@@ -1,34 +1,97 @@
 var Chords = function() {
     this.wavesurfer = Object.create(WaveSurfer);
     this.wavesurfer.init({container: '#waveform'});
-    this.wavesurfer.load("static/audio/azoora.mp3");
+    this.wavesurfer.on("mark", this.setChord.bind(this));
 
     this.playButton = $("#play-button");
     this.playIcon = $("#play-button i");
     this.playButton.click(this.onPlayButtonClicked.bind(this));
     this.playing = false;
 
-    this.addButton = $("#add-button");
-    this.addButton.click(this.onAddButtonClicked.bind(this));
+    $("#songs").on("click", ".song",
+                   this.onSongClicked.bind(this));
+    $("#songs").on("click", "#add-button",
+                   this.onAddButtonClicked.bind(this));
 
     this.fileInput = $("#file-input");
     this.fileInput.change(this.onFileAdded.bind(this));
 
     this.uploadForm = $("#upload-form");
 
+    this.songList = $("#song-list");
+    this.songListTemplate = Handlebars.compile($("#song-list-template").html());
+
+    this.songs = [];
     this.getSongs();
+
+    this.chords = null;
+};
+
+Chords.prototype.onSongClicked = function(event) {
+    this.pause();
+    this.wavesurfer.clearMarks();
+    var song = $(event.target);
+    this.wavesurfer.load(song.data("path"));
+
+    var ajax = $.ajax('/api/songs/' + song.data('id') + '/chords', {
+        type: 'GET',
+        dataType: 'json'
+    });
+    ajax.done(this.onGetChordsDone.bind(this));
+    ajax.fail(this.onFail.bind(this, "Getting chords"));
+};
+
+Chords.prototype.onGetChordsDone = function(data) {
+    chords = data;
+    var duration = this.wavesurfer.getDuration();
+    for (var i=0; i<chords.length; i++) {
+        var chord = chords[i];
+        if (chord.time == 0) {
+            continue;
+        }
+
+        var mark = this.wavesurfer.mark({
+            position: chord.time * duration,
+            color: 'rgba(0, 255, 0, 0.5)'
+        });
+        mark.chord = chord.chord;
+    }
+};
+
+Chords.prototype.setChord = function(mark) {
+    $("div#chord div div").text(mark.chord);
 };
 
 Chords.prototype.onPlayButtonClicked = function() {
     if (this.playing) {
-        this.wavesurfer.pause();
+        this.pause();
     }
     else {
-        this.wavesurfer.play();
+        this.play();
     }
-    this.playing = !this.playing;
+};
+
+Chords.prototype.togglePlayIcon = function() {
     this.playIcon.toggleClass("fa-play");
     this.playIcon.toggleClass("fa-pause");
+};
+
+Chords.prototype.play = function() {
+    if (this.playing) {
+        return;
+    }
+    this.wavesurfer.play();
+    this.togglePlayIcon();
+    this.playing = true;
+};
+
+Chords.prototype.pause = function() {
+    if (!this.playing) {
+        return;
+    }
+    this.wavesurfer.pause();
+    this.togglePlayIcon();
+    this.playing = false;
 };
 
 Chords.prototype.onAddButtonClicked = function() {
@@ -52,7 +115,7 @@ Chords.prototype.onFileAdded = function(event) {
         dataType: 'json'
     });
     ajax.done(this.onUploadDone.bind(this));
-    ajax.fail(this.onUploadFail.bind(this));
+    ajax.fail(this.onFail.bind(this, "File upload"));
 };
 
 Chords.prototype.createUploadXhr = function() {
@@ -78,19 +141,12 @@ Chords.prototype.onUploadDone = function(data) {
         dataType: 'json'
     });
     ajax.done(this.onAddSongDone.bind(this));
-    ajax.fail(this.onAddSongFail.bind(this));
-};
-
-Chords.prototype.onUploadFail = function(event) {
-    console.error("File upload failed: ", event.statusText);
+    ajax.fail(this.onFail.bind(this, "Adding song"));
 };
 
 Chords.prototype.onAddSongDone = function(data) {
-    console.log("Adding song succeeded");
-};
-
-Chords.prototype.onAddSongFail = function(data) {
-    console.error("Adding song failed: ", event.statusText);
+    this.songs.push(data);
+    this.updateSongView();
 };
 
 Chords.prototype.onUploadProgress = function(event) {
@@ -102,7 +158,26 @@ Chords.prototype.getSongs = function() {
         dataType: 'json'
     });
     ajax.done(this.onGetSongsDone.bind(this));
-    ajax.fail(this.onGetSongsFail.bind(this));
+    ajax.fail(this.onFail.bind(this, "Getting song information"));
+};
+
+Chords.prototype.onGetSongsDone = function(data) {
+    this.songs = data;
+    this.updateSongView();
+};
+
+Chords.prototype.updateSongView = function() {
+    var context = {
+        songs: this.songs
+    };
+
+    var songList = $(this.songListTemplate(context));
+    this.songList.replaceWith(songList);
+    this.songList = songList;
+};
+
+Chords.prototype.onFail = function(what, event) {
+    console.error(what, "failed: ", event.statusText);
 };
 
 $(document).ready(function() {

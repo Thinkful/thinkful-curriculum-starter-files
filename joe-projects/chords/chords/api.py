@@ -1,6 +1,7 @@
+import os.path
 import json
 
-from flask import request, Response, url_for
+from flask import request, Response, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 from jsonschema import validate, ValidationError
 
@@ -8,6 +9,7 @@ import models
 import decorators
 from chords import app
 from database import session
+from analysis import calculate_chords
 
 
 @app.route("/api/songs", methods=["GET"])
@@ -22,9 +24,7 @@ def songs_get():
 @decorators.accept("application/json")
 @decorators.require("application/json")
 def songs_post():
-    print "here"
     data = request.json
-    print data
     file = session.query(models.File).get(data["file"]["id"])
     if not file:
         return
@@ -35,6 +35,17 @@ def songs_post():
 
     data = song.asDictionary()
     return Response(json.dumps(data), 201, mimetype="application/json")
+
+@app.route("/api/songs/<int:id>/chords", methods=["GET"])
+@decorators.accept("application/json")
+def song_chords(id):
+    song = session.query(models.Song).get(id)
+    if not song:
+        return
+
+    path = song.file.local_path()
+    chords = calculate_chords(path)
+    return Response(json.dumps(chords), 200, mimetype="application/json")
 
 @app.route("/api/files", methods=["POST"])
 @decorators.require("multipart/form-data")
@@ -54,8 +65,9 @@ def file_post():
     return Response(json.dumps(data), 201, mimetype="application/json")
 
 @app.route("/uploads/<filename>", methods=["GET"])
-def uploaded_file():
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename)
+def uploaded_file(filename):
+    # Converts /chords/uploads to /uploads.
+    path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+    return send_from_directory(path, filename)
 
 
