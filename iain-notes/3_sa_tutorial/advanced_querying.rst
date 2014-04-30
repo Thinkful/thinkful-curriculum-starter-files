@@ -1,0 +1,895 @@
+Lesson 4 - Advanced Querying
+============================
+(Status - Draft and exercises finished, apr 29, 2014)
+
+In this assignment we'll recap the querying techniques we've already demonstrated and
+introduce more powerful filtering and joining options. We'll also introduce some
+techniques for using Python's dynamic abilities to make very flexible code. This will
+be a pretty involved assignment, so give yourself plenty of time for this one.
+
+
+Session and Identity Map Gotchas
+--------------------------------
+One important point to keep in mind is that when we use an SQLAlchemy session to query the database,
+we are querying both the session and the database. If we've created a new object in this
+session but haven't committed to the database yet, any queries on the current session will
+retrieve the pending object, even though it does not yet have an ID. This is because the
+items are already in the Identity Map, as mentioned in the previous assignment. Keep this in
+mind if you're getting odd results. You can always close the session and create a new one
+to make sure you are dealing with an empty session and getting items from the database ::
+
+    # close the exisiting session and replace with a new one
+    db_session.close()
+    db_session = Session()
+
+
+Part 1 - Basic Queries 
+----------------------
+SQLAlchemy Query objects are *generative*. This means that all the operations on a query 
+object except the terminal operations return new query objects. This way we can build up a
+query bit by bit, and then terminate it with an operation that does something like count,
+retrieve, or delete the results of the query. Our most basic query object gets everything 
+from a model class ::
+
+    # select everything from the Species class
+    species_query = db_session.query(Species)
+
+    # now we have a query object and can use it a few ways
+    
+    # get a list of all species items
+    species_query.all()
+
+    # or get just the first one
+    species_query.first()
+
+    # or just count them
+    species_query.count()
+
+    # we can peek at the SQL
+    print "%s" % query.statement
+    # prints: 'SELECT species.id, species.name \nFROM species'
+   
+    # refine our query
+    from sqlalchemy import desc
+    species_query = species_query.order_by( desc(Species.name) )
+    
+    # get all the items, now ordered by name descending
+    species_query.all()
+
+SQLAlchemy has methods for all the SQL operations we might want to add to a query:
+filtering, ordering, limiting, offsetting, subquerying and many more. We also 
+get a variety of terminal methods that return lists, single objects, or raise exceptions. 
+
+We can also use the query itself to update or delete objects instead of retrieving them:
+
+    # update all people, passing in a dictionary of key-values to write
+    db_session.query(Person).update( dict(name='Iain') )
+    # delete all pets
+    db_session.query(Pet)
+    # commit to save the delete and update to the database
+    db_session.commit()
+
+Updating this way is less common than retreiving objects and then writing to them
+though as it's somewhat less flexible. 
+
+    # update all People, more verbosely
+    people = db_session.query(Person).all()
+    for person in people:
+        person.name = "Iain"
+    db_session.commit()
+
+Using the query to delete may be preferable sometimes when having dangling
+references to now-deleted objects can be confusing to read ::
+
+    # get people, then delete them
+    people = db_session.query(Person).all()
+    # delete all the people
+    for person in people:
+        db_session.delete(person)
+    db_session.commit()
+    # potential issue, people is still in scope
+    assert people
+
+When we delete with the query, we can avoid this issue ::
+    
+    # get and delete all the people
+    db_session.query(Person).delete()
+    # no python variable to delete people left in scope!
+    
+
+Basic Get
+---------
+
+Our most basic query is one we've seen already, the get by primary key query. This is
+used when we have the database ID and is common in web applications where the ID
+may be in the URL of a page ::
+
+    # hypothetical ID retrieval
+    species_id = get_id_from_url()
+    species_item = db_session.query(Species).get( species_id ) 
+    # species_item is not either a Species object or None
+
+This query will return the object, or a None value.  
+Logically, we can see that query.get can not normally fetch a pending item as it needs the ID.
+However, if we had explictly passed in the primary key on creation, we would also be able
+to get an item from the session before it was persisted to the database ::
+
+    # create a species, passing in the id instead of letting SQLA determine it for us
+    parrot = Species(id=4, name="Parrot")
+    dbs.add(parrot)
+    
+    # we haven't committed, parrot is not in the database yet!
+    fetched_parrot = dbs.query(Species).get(4)
+    
+    # we got back a reference to parrot
+    assert fetched_parrot
+    
+    # now change our original parrot
+    parrot.name == 'The Majestic Parrot'
+
+    # has fetched_parrot changed?
+    assert fetched_parrot.name == "The Majestic Parrot"
+
+    # YES! SQLAlchemy knows that they should the *same* object
+    assert fetched_parrot is parrot
+
+As you can see in the code comments, if we do this we wind up with a new reference
+to the *same* object. SQLAlchemy's Identity Map can see that we are talking about the
+same database object and will ensure that all references work properly. 
+
+Part 1 Exercises:
+-----------------
+1) In your script, create some items, commit, and then get them with a new session using
+  their primary key.
+2) Get back a new reference to the same record, and change it. Check that the change has
+  also happened on your original object.
+3) Update all the members of one domain class with one query
+4) Delete a member of a domain class without creating a temporary variable for that member
+
+
+Part 2, Filtering Queries
+--------------------------
+The next most common operation is to filter our query. We can do this with either a 
+**filter** clause or a **filter_by** clause. When we use filter_by, we pass in keyword
+arguments as simple string keys and Python values. The retrieved object must match
+any keys passed in. 
+
+    # pass in some keyword args, getting back only complete matches
+    query(Species).filter_by( name='Parrot', id=4).all()
+
+We can use filter_by along with Python's dictionary expansion operator to filter
+(XXX: BEN, have they seen the ** expansion before?)
+on a dictionary very succinctly :: 
+
+    # maybe we get a dict of search terms somehow
+    filter_dict = dict( id=4, name='Parrot')
+    db_session.query(Species).filter_by( **filter_dict ).all()
+
+Filtering is again generative so this could also be built up bit by bit:
+
+    query = db_session.query(Species).filter_by( name='Parrot' )
+    query = query.filter_by( id=4 )
+    parrot_list = query.all()
+
+We use the **filter** operation to filter with more powerful options than simple
+keyword matching. Filter accepts expressions in the SQLAlchemy expression language.
+We can filter on complex types, date ranges, add in logical AND and OR options, negate
+our filter, all kinds of good stuff.
+When we filter on an SQAlchemy expression, we use an attribute of the model *class*.
+Also, note that these are *expressions*, so we are now using == instead of = ::
+
+    people = db.session.query(Person).filter( Person.city == "New York" ).all()
+    # we can pass in multiple expressions separated by commas, all will apply
+    people = db.session.query(Person).filter( 
+        Person.city=="New York", Person.state=="NY" ).all()
+
+SQLAlchemy has a number of helper functions for common operations, such as AND and OR ::
+
+    # NB: and_ and or_ are so named to avoid conflicts with Python's reserved words
+    from sqlalchemy import and_, or_
+
+    # find a person named either Ben or Iain
+    people = db.session.query(Person).filter(
+      or_( Person.name=="Ben", Person.name=="Iain") ).all()
+
+Other operations are available as operators on the mapped properties of the class. 
+Here we can do string searching using a 'like' clause (the '%' sign means 'anything
+here') ::
+
+    # get any species with the letter a in the name 
+    db.session.query(Species).filter( Species.name.like( '%a%' ) ).all()
+
+We can also check for list membership (or lack thereof)::
+
+    # get people named Ben, Iain, or John
+    possible_names = ['Ben', 'Iain', 'John']
+    db_session.query(Person).filter( Person.name.in_( possible_names ) ).all()
+    # or not in, using the ~ symbol to negate the operation
+    db_session.query(Person).filter( ~Person.name.in_( possible_names ) ).all()
+
+For futher possibilities, the SQLAlchemy ORM Tutorial has a comprehensive section
+on filtering. http://docs.sqlalchemy.org/en/rel_0_9/orm/tutorial.html#common-filter-operators
+
+We also have a few different options for how we get the results of our query.
+You've seen query.all(), but we can also use query.one(), query.first() 
+and query.scalar() ::
+
+    query = db_session.query(Person).filter( Person.first_name == "Iain")
+    
+    # get all the Iains, or an empty list if there are none
+    iain_list = query.all()
+    
+    # get one Iain, raising an exception if there is not exactly one Iain
+    from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound 
+    try:
+        iain = query.one()
+    except NoResultFound, e:
+        log.info("Error: no result found")
+        iain = None
+    except MultipleResultsFound, e:
+        log.info("Error: multiple Iains were found")
+        iain = None 
+    
+    # get the first Iain if many Iains, or None if no Iains  
+    # unlike all, no results returns None instead of an empty list 
+    iain = query.first()
+   
+    # scalar asks for either one item, or None, but an exception on too many
+    # this is like query.one(), except a None is permitted
+    try:
+        iain = query.scalar()
+        # iain could be None here...
+    except MultipleResultsFound, e:
+        # but too many Iains raises an exception
+        log.info("Error: multiple Iains were found")
+         
+
+Another common operation we might need is the ability to limit our retrieval to certain
+items within the master list. For large databases, this is much more memory 
+efficent than loading up a giant list and slicing in Python ::
+
+    # maybe we have 1000000 pets in the db!
+    # we want the second page of pets, displaying 50 per page
+    
+    # bad: pet_list is huge and is loaded before our slice happens!
+    pet_to_show = db_session.query(Pet).all()[ 50:100 ]
+
+    # good: pass off the work to the db and only load 50 pets
+    pets_to_show = db_session.query(Pet).offset(50).limit(50).all()
+
+This is a good way to make a paginated view, a common need in making database
+backed websites ::
+    
+    page_num = get_page_from_url()
+    items_per_page = get_page_option()
+    
+    items = query.offset( items_per_page * (page_num - 1) 
+        ).limit( items_per_page).all() 
+
+Ordering our results can be accomplished just as easily ::
+
+    query = dbs.query(Person).order_by(Person.last_name).all()
+
+We can pass in a series of fields to use for order, and we can use the 
+**desc** helper function if we'd like to reverse the order ::
+
+    from sqlalchemy import desc
+    query = db_session.query(Person).order_by( 
+      desc(Person.last_name), desc(Person.first_name) ).all()
+
+
+Part 2 Exercises:
+-----------------
+
+1) Using the debugger, query for items using filter_by. Pass in a dictionary as well.
+
+2) Do the same with filter. Try some searches using the following:
+   * and_
+   * or_
+   * like
+   
+3) Read over the querying options in the SQLAlchemy ORM tutorial at: 
+    http://docs.sqlalchemy.org/en/rel_0_9/orm/tutorial.html#common-filter-operators
+
+4) Do some queries using:
+   * order by
+   * limit
+   * offset
+
+
+Part 3 - Querying with Joins
+----------------------------
+
+One-To-Many Joins
+-----------------
+The SQLAlchemy querying system really shines over raw SQL when it comes to joins. The
+join syntax makes it very easy to search for items based on columns in tables to 
+which they are joined. We've seen in the previous assignment that if two tables have
+only one foreign key relationship between them, SQLAlchemy will introspect on the tables
+and determine the join conditions automatically. This holds true for query joins as well.
+For example, let's look for a Breed, based on characteristics of it's Species ::
+
+    # get all breeds that belong to a species called Cat
+    cat_breeds = db_session.query(Breed).join(Species).filter(Species.name=='Cat').all()
+
+There are a number of points to note about this one line. First, the purpose of this
+join is that it allows us to get one class of objects while filtering on attributes
+of another class of objects: we are retrieving Breeds, but searchin on characteristics of 
+Species. We need to join to Species in order to filter on an attribute of the Species
+domain model class. As there is only one foreign key relationship between Breed and 
+Species, we don't need to specify *how* this join works. This format can be extended
+over more 'hops'. For example, we could check for Shelters that have cats, daisy chaining
+from Shelter to Pet to Breed to Species ::
+
+    # get shelters with cats
+    cat_shelters = db_session.query(Shelter).join(Pet).join(Breed).join(Species
+        ).filter(Species.name=="Cat").all()
+
+    # some times you'll see this broken up with Python's line continuation sign: \
+    cat_shelters = db_session.query(Shelter) \
+        .join(Pet) \
+        .join(Breed) \
+        .join(Species). \
+        filter(Species.name=="Cat").all()
+
+    # or the following style, which allows intermingling comments
+    # we'll be using this style as the comments can be very handy
+    cat_shelters = dbs.query(Shelter
+        # pet.shelter_id == shelter.id
+        ).join(Pet       
+        # pet.breed_id == breed.id
+        ).join(Breed
+        # breed.species_id == species.id
+        ).join(Species
+        # species.name == 'Cat'                
+        ).filter(Species.name=="Cat"
+        ).all() 
+
+    
+When we construct a long join, we need to remember the following:
+    
+    * the domain class passed first as an argument to query is what we want to *get back*
+    * we then join, usually in the order of the key relationships to different classes
+    * we can add as many filter clauses as we want after the joins
+    * we can't filter on a class until we've joined it
+    * the class to join must be in scope, IE we need to import Shelter, Pet, Breed & Species
+         
+Now let's use the same long series of joins but filter on more than one
+class attribute. Let's look for pets, that are breeds, that are cats, and that
+are at the SPCA. We still need the same joins, but we'll start with Pet because
+that is what we want to retrieve. So we need to join such that we can trace a connection
+from Pet through all the classes we want to use for filtering ::
+
+    # get all pets that are cats, and are at the spca
+
+    # we want to retrieve pets, so Pet is the root of the query
+    spca_cats = db_session.query(Pet
+        # join Shelter, pet.shelter_id == shelter.id
+        ).join(Shelter       
+        # join Breed, pet.breed_id == breed.id
+        ).join(Breed
+        # join Species, breed.species_id == species.id
+        ).join(Species
+        # filter on species.name == 'Cat'                
+        ).filter(Species.name=="Cat"
+        # filter on shelter name == 'SPCA'
+        ).filter(Shelter.name=="SPCA"
+        # and retrieve them
+        ).all()
+
+Note in the above that we hop from the Shelter join clause directly to the
+Breed join clause, even though there is no link between these tables. SQLAlchemy's
+introspection is smart enough to sort this out as Pet is *already* part of our 
+query and we have only one path between these classes. 
+
+Many-To-Many Joins
+------------------
+Next let's try a query across a Many-To-Many relationships. Let's see if we
+can get a list of the people who have a pet name "Jackson" ::
+
+    cat_people = db_session.query(Person
+        ).join(Pet
+        ).filter( Pet.name == 'Jackson' ).all()
+    >>> sqlalchemy.exc.InvalidRequestError: Could not find a FROM clause to join
+        from.  Tried joining to <class '__main__.Pet'>, but got: Can't find any 
+        foreign key relationships between 'person' and 'pet'.
+
+Uh-oh, we got an exception! SQLAlchemy can't sort out the join conditions by itself
+because there isn't only one simple connection from Pet to Person. We are going to need to tell
+the query engine about the many-to-many table somehow. We do this by specifying
+the attribute of the joined object that we are joining to, and SQLAlchemy's instrospection
+can then use that attribute to sort out the key relationships as it alreay knows
+about the joining table from the attribute's mapper. In this case, 
+we are joining from Person to Pet, through the Person.pets attribute, i.e:
+Person.pets is the many-to-many property on the Person class. ::
+
+    jackson_people = db_session.query(Person
+        # NB: we add the attribute of the Person class that we are joining to
+        # this works because SQLA already knows how Person.pets is many-to-many
+        ).join(Pet, Person.pets
+        ).filter( Pet.name == 'Jackson' ).all()
+
+And we're good! In addition, there is another syntax we can use
+if we are filtering on column properties of Pet. We can use one of SQLAlchemy's
+*Relationship Operators*, the **any()** operator ::
+
+    # use the 'any' operator to filter on any of this Person's pets
+    jackson_people = db_session.query(Person
+        ).filter( Person.pets.any( Pet.name == 'Jackson') ).all()
+
+For more of the relationship operators available to us, see the corresponding
+section in the  SQLAlchemy ORM Tutorial at 
+http://docs.sqlalchemy.org/en/rel_0_9/orm/tutorial.html#common-relationship-operators
+
+To wrap up our many-to-many join examples, let's join further tables *after* the
+many-to-many relationship in order to find all people that have Persian cats ::    
+
+    # get all the people who have cats who are persian
+    persian_cat_people = db_session.query(Person
+        ).join(Pet, Person.pets
+        ).join(Breed
+        ).join(Species
+        ).filter(Breed.name=='Persian'
+        ).filter(Species.name=='Cat'
+        ).all()
+
+We can see in the above that after we've connected through our many-to-many 
+join, we can continue joining further tables and filtering on them just as 
+we did in our One-To-Many examples.
+    
+
+Self-Referential Joins
+----------------------
+Now what about our parent-child relationships? In this case, we have a table
+*joining itself*. In SQL, when we need to re-use the same table in a complex
+query, the usual way of doing this is to use an **alias**, in which the table
+is given a second alternate name for the purpose of keeping parts of the query
+distinct. In SQLAlchemy, we can use the **alias** function to create an alias
+of on our model classes to accomplish the same thing. Let's say that 
+our Pet "Jackson" also has a parent pet "Jack". (See what I did there?)
+We want to look for a Pet, but we want to filter our search on characteristics
+of the *parent*. Remember that in Python, classes are first-class objects
+and we can have variables point to them just the same as if they were instances
+of classes. In this case, we alias Pet as PetParent for our join. (in this example
+we're using a capitalized variable name to mark it as containing a class) ::
+
+    from sqlachemy.orm import aliased
+    PetParent = aliased(Pet)
+    # our first try
+    child_pets = db_session.query(Pet
+        ).join(PetParent
+        ).filter( PetParent.name=='Jack'
+        ).all()
+    >>> []
+
+However, we got nothing back! Thinking about it, we realize that even with the
+alias, there's no way for the query to automatically introspect the join condition
+as both directions could be valid. If we explictly add a reference to the Pet
+attribute that we are using for the join, we get our expected results ::
+
+    from sqlachemy.orm import aliased
+    PetParent = aliased(Pet)
+    # correct version with more explicit join
+    child_pets = db_session.query(Pet
+        # join from Pet.parent to our aliased table
+        ).join(PetParent, Pet.parent
+        # filter on the *parents* attribute, in the alias
+        ).filter( PetParent.name=='Jack'
+        ).all()
+    >>> ['Jackson']
+
+As an aside, this demonstrates the most dangerous type of error we can have: 
+a logical error in which the code is executing fine, but our understanding
+of what the code does is flawed and thus we get back incorrect results. These are the 
+hardest kind of errors to debug because the symptoms can show themselves far
+away from the sources of the errors! This is yet another illustration
+of the need to test your database model and the code using it thoroughly with small
+isolated examples until you know they are doing what you think they should do.
+
+As with our other examples, we'll close with a longer join to illustrate
+that we can still chain across to more distantly related tables on top of this
+self-referential join. Below we find all people, who have pets, that have *parents*,
+that are Persian. (Phew!)
+
+Let's do this in two pieces, as it's always a good idea to break something 
+tricky up into smaller iterations. First, let's get the people who have
+pets who have parents.
+
+    # we want to get people, so start with Person
+    PetParent = aliased(Pet)
+    people = db_session.query(Person
+        # our M2M join from Person.pets to the Pet table
+        ).join( Pet, Person.pets
+        # now join from Pet.parent to the aliased table
+        ).join( PetParent, Pet.parent
+        ).all()
+   
+Ok, good so far. Now we can merge our previous example and limit
+the query to specify that the ParentPet must be of breed "Persian" ::
+
+    # get people who have pets who have parents of breed Tabby
+    PetParent = aliased(Pet)
+    people = db_session.query(Person
+        # our M2M join from Person.pets to the Pet table
+        ).join( Pet, Person.pets
+        # now join from Pet.parent to the aliased table
+        ).join( PetParent, Pet.parent
+        ).join( Breed, 
+        ).filter( Breed.name == 'Tabby' 
+        ).all()
+    log.info(" people with pets who have Tabby parents: %s" % people)
+
+This works, but we could make it slightly easier to follow if we 
+specified that it's the *parent* breed we are filtering on, right
+now at a glance one could be confused about who's breed needs to be Tabby.
+One of the principles of Python is that "Readbility Counts". Programmers
+have found that in reality one of the hardest parts of programming
+is coming back to our own code or code by someone else and figuring
+our what it did and how. What seems totally obvious when we write it
+becomes cryptic and confusing several months later. While explictly
+stating the joins or even using an additional alias is not *necessary*,
+if the result is code that is easier to follow and there isn't any 
+horrendous performance loss, it's generally a good idea to err on the 
+side of clarity. We can always optimize for performance later if we
+discover we *need* to. We want to avoid "premature optimization"
+and write for ease of understanding. We could
+do this a couple of different ways. First, we could just
+specify the breed join condition, highlighting that it's the aliased
+PetParent table that is being joined. ::
+
+    # get people who have pets who have parents of breed Tabby
+    PetParent = aliased(Pet)
+    people = db_session.query(Person
+        # our M2M join from Person.pets to the Pet table
+        ).join( Pet, Person.pets
+        # now join from Pet.parent to the aliased table
+        ).join( PetParent, Pet.parent
+        # NEW: highlight we're after the Parents breed
+        ).join( Breed, PetParent.breed
+        ).filter( Breed.name == 'Tabby' 
+        ).all()
+    log.info(" people with pets who have Tabby parents: %s" % people)
+
+This is pretty good, but we could still make it more clear by also
+aliasing Breed as BreedofParent ::     
+
+    # get people who have pets who have parents of breed Tabby
+    PetParent = aliased(Pet)
+    BreedOfParent = aliased(Breed)
+    people = db_session.query(Person
+        # our M2M join from Person.pets to the Pet table
+        ).join( Pet, Person.pets
+        # now join from Pet.parent to the aliased table
+        ).join( PetParent, Pet.parent
+        # NEW: highlight we're after the Parents breed
+        ).join( BreedOfParent, PetParent.breed
+        # isn't the below nice and clear?
+        ).filter( BreedOfParent.name == 'Tabby' 
+        ).all()
+    log.info(" people with pets who have Tabby parents: %s" % people)
+
+This last one is even more readable as we know at a glance what the filter
+argument **BreedOfParent.name == 'Tabby'** is doing. This is also flexible
+enough that we could now filter on both the child's breed and the parents breed:
+
+    # get people who have Persian pets who have parents of breed Tabby
+    PetParent = aliased(Pet)
+    BreedOfParent = aliased(Breed)
+    people = db_session.query(Person
+        # our M2M join from Person.pets to the Pet table
+        ).join( Pet, Person.pets
+        # now join from Pet.parent to the aliased table
+        ).join( PetParent, Pet.parent
+        # join the breed table to filter on the child pet
+        ).join( Breed, Pet.breed
+        # also join the aliased Breed table for the Parent Breed filter
+        ).join( BreedOfParent, PetParent.breed
+        # filter on child breed
+        ).filter( Breed.name == 'Persian'
+        # filter on parent breed 
+        ).filter( BreedOfParent.name == 'Tabby' 
+        ).all()
+    log.info(" people with Persian pets who have Tabby parents: %s" % people)
+
+We can test this one by reversing the strings 'Persian' and 'Tabby' and making sure
+that one works and the other doesn't.
+
+The examples we've covered so far are likely to cover most cases you'll need for
+querying a database, but there are more complex query options that may be useful
+for more complicated databases. These are covered the in the SQALchemy ORM Tutorial
+that we have mentioned before, and also in detail in the API documentation for the 
+Query method, at http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html
+
+Part 3 Exercises
+----------------
+- make a query with a join in which you filter on a joined class attribute
+- do the same thing, but join yet another class, filtering on both
+- make a query that joins your pet_person many-to-many table to find all pets that
+  have people of a certain name
+- insert some data so that you some people with parents in the person table 
+  and make a query that joins the person table to itself to find all people with 
+  parents of a certain name 
+
+
+
+Part 4: Building Queryies Dynamically
+-------------------------------------
+Much of the power of SQLAlchemy querying comes from the generative nature of
+the query object, it means we can refine our query bit by bit as we go, using 
+variables to hold our domain model classes and the attributes on which we want
+to filter. Let's look again at a simple query filter :: 
+
+    pets = db_session.query(Pet).filter(Pet.name == 'Jackson').all()
+    
+In the query above we pass in two arguments, one is the class we want to query
+*for*, as an argument to the query object, and the other is the *expression* 
+we use to filter. The expression contains the variable "Pet.name". Both of
+these components of our query can be built dynamically. 'Pet' in this case
+is our domain model class, and we can put a variable into our query to hold
+this class just as if it were any other kind of value, so long as the 
+model class we want to assign has been imported ::
+
+    from ourmodel import Pet
+    domain_class = Pet
+    query = db_session.query( domain_class ).all()
+
+Given that we can pass around variables to classes, this might come
+from a function that determines what kind of object we're looking for ::
+
+    # an example method that might return the Pet class
+    # note: we don't need to import Pet if it's returned this way
+    domain_class = get_domain_class_from_url()
+    # now domain class == Pet
+    query = db_session.query( domain_class ).all()
+
+You can see that this could be very useful if we had a generic search method
+and we wanted to re-use it in different contexts. Next in the filter expression,
+we have "Pet.name". This is an attribute of our Pet class, which is mapped to
+a column of the Pet domain model class. This could also be made dynamic by using
+Python's getattr function and passing in the column name as a string ::
+
+    column_attr = "name"
+    query = db_session.query(Pet
+        # dynamically get 'Pet.name' using getattr
+        ).filter( getattr(Pet, col_attr ) == 'Jackson'
+        ).all()
+   
+Again, this column could be determined by some other callable. We can
+even combine the two ::
+
+    domain_class = Pet
+    column_attr = "name"
+    query = db_session.query( domain_class
+        # dynamically get 'Pet.name'
+        ).filter( getattr(domain_class, column_attr) == 'Jackson'
+        ).all()
+     
+Using the generative nature of the query object, we can build a query
+up from some arbitrary length dictionary of key-value pairs that
+should match ::
+    
+    # often you'll see variables holding a class written as klass
+    klass = Person
+    filter_dict = {
+        'name': 'Iain',
+        'email': 'Iain@email.com',
+        'phone': '123-456-7890',
+        'age': 39, 
+    }
+    # build a query up iteratively
+    # start with our base query object
+    query = db_session.query(klass)
+    
+    # loop through the dictionary, creating a filter for each
+    # attribute in the dictionary that is an attr of Person
+
+    for attr, value in filter_dict.items():
+        # this means age won't get used as its not in our table
+        if hasattr( klass, attr ):
+            query = query.filter( getattr(klass, attr) == value)
+
+    # now we execute our query
+    items = query.all()
+
+
+You can imagine how this might appear in a generic searching function ::
+
+    def search_class_by_dict( klass, filter_dict ):
+        query = query(klass)
+        for attr, value in filter_dict.items():
+            if hasattr( klass, attr ):
+                query = query.filter( getattr(klass, attr) == value)
+        items = query.all()
+        return items 
+
+This will work fine as long as the key-values in our filter dict are
+column attributes of the domain class instead of mapped relationships.
+If we want to also be able to search for mapped relationships, we can
+dynamically build up queries with joins, taking advantage of the fact
+that the query object can be filtered or joined in any order.
+
+For example, let's make a search for pets from a dictionary
+that could contain key-value pairs for: name and breed name, even
+though breed name is not a column of Pet ::
+
+    search_dict = {
+        'name': 'Jackson',
+        'breed_name': 'Persian',
+    }
+
+    # base query
+    query = db_session.query(Pet)
+
+    # go through our dict, joining when necessary
+    # we only filter if the dict has a value for the key
+    
+    # name
+    if search_dict.get('name',None):
+        pet_name = search_dict['name']
+        query = query.filter( Pet.name )
+    
+    # breed
+    if search_dict.get('breed_name', None):
+        breed_name = search_dict['breed_name']
+        # join breed
+        query = query.join(Breed
+            # then filter on Breed
+            ).filter(Breed.name == breed_name)         
+    
+    items = query.all()
+
+
+Finally, our dynamically build queries are not limited to simply 
+matching values with ==. Mapped attributes of domain model classes
+get a number of methods from SQLAlchemy that can be used to make 
+more complex expressions. For example, these two are
+equivalent:
+
+    query = query.filter( Pet.name == 'Jackson' )
+    # or using methods of mapped attributes...
+    query = query.filter( Pet.name.is_( 'Jackson') )
+
+We mentioned the various filter options before, and as you can imagine,
+these can be determined dynamically as well. Some search options
+allow you to specify whether you will allow partial matches or only 
+complete matches, or allow you to specify whether you want *all* terms
+to match or *any* to match. 
+
+    query_op = get_query_operator()
+    # now query_op is either 'match' or 'search'
+    
+    if query_op == 'match':
+        # we want to use the is_ method for a complete match 
+        filter_method = 'is_'
+        # get the value for the right hand of the filter expression
+        filter_val = search_dict.get( key_name )
+        # filter_val is now something like 'Jack'    
+    else:
+        # if query_op is 'search', we'll build a 'like' clause
+        filter_method = 'like'
+        # our right hand expression value should be '%Jack%' to 
+        # match any pet with J in the name when applied as a like
+        filter_val = '%%s%' % search_dict.get( key_name )    
+
+    # now filter the query, dynamically looking up the filter *method*
+    # on the mapped attribute, and then calling it with our search value
+    filter_expression = getattr(Pet.name, filter_method)( filter_val )
+    query = query.filter( filter_expression )
+    
+    items = query.all()    
+
+In the above example we have taken dynamic building one step further, we're
+using a variable to hold the *method* that we want applied to Pet.name. That
+variable will have either 'is_' or 'like'. When we call
+getattr(Pet.name, filter_method), this evaluates to Pet.name.is_ or Pet.name.like 
+and we can can then *call* that returned value. This is a bit mind-bending
+the first time you see it, but is an extremely powerful pattern in dynamic 
+languages. We execute code to get a *callable object* and then call it later.
+As you can guess, we could combine this with dynamically determining the class
+and the column as well. In it's most succint form, this starts to look 
+pretty hairy ::
+
+    # get the domain class: Pet
+    domain_class = get_domain_class() 
+    # get the attribute we want to search for: 'name' 
+    col_attr = get_attr()  
+    # get our filter method: becomes is_ or like
+    filt_meth = get_filter_method()
+    
+    # get our right hand value, the search term, and make a like if need be    
+    # filter_value becomes "Jack"
+    filter_value = get_search_term()
+    # change the filter for a like
+    if filter_method == 'like':
+        # now filter value will be '%Jack%'
+        filter_value = '%%s%' % filter_value
+    
+    # build the base query
+    query = query(domain_class) 
+    
+    # and the big hairy filter call...
+    query = query.filter( 
+        getattr( getattr(domain_class, col_attr), filter_method)( filter_value )
+    )    
+
+    # fire the query
+    items = query.all()
+
+You can see that our dynamic lookup line is pretty convoluted at this point, with
+nested calls to getattr. This certainly fails the can-you-read-me-in-three-months
+test, but it's the kind of thing you will see in Python code examples from advanced
+programmers. If you want
+to be able to follow this when you come back to it in the future, you'll probably
+want to break this up into more readable components, with comments that help
+you keep track of what each component is becoming.  Redoing the bottom half of
+the previous example more readably we have:
+
+    # build the base query
+    query = query(domain_class) 
+   
+    # get the domain class and mapped attribute
+    # evaluates to: Pet.name
+    klass_attr = getattr(domain_class, col_attr) 
+    
+    # get the callable filter object from the above
+    # evaluatea to Pet.name.like or Pet.name.is
+    filter_callable = getattr( klass_attr, filter_method )
+
+    # now call the filter callable with our right hand value to get the
+    # the complete filter expression. This becomes something like
+    # Pet.name.like( '%Jack%' )
+    filter_expression = filter_callable( filter_value )
+
+    # filter the query with our dynamically generated filter expression    
+    query = query.filter( filter_expression )
+
+    # fire the query
+    items = query.all()
+ 
+
+Enough Rope to Hang Yourself - Practical Tips
+---------------------------------------------
+You can see from our discussion so far that the SQLAlchemy query system
+allows us many different ways of dynamically building and executing complex
+queries, and is well suited for building complex search methods with generic
+code that we can re-use in many different contexts. Code like the above is
+what programmers call "highly abstracted". It allows one to avoid duplication,
+and to reuse generic methods, but frequently at the cost of readibilty and/or
+comprehensibility. 
+
+As you see more and more code like the above, it will become second nature to
+untangle the nested dynamic lookups and what now seems like unreadable gobbledy-gook
+will start to seem almost reasonable. This brings the danger that you too may write code
+that is incomprehensible to others or even yourself! It can also get tricky to test
+and nightmarish to debug. 
+
+It's generally considered to be a good practice to err on the side of a "little
+bit too obvious to you now", and to give yourself some insert points for debugging
+if you think this is more than "dead obvious".  When doing so, long variable names that clearly
+convey what each component contains will make following code much easier. Also think about
+where you might want to insert logging statements or drop into the debugger in the future. ::
+
+    # too-smart-for-our-own-good all on 1 line version
+    items = query(klass).filter( getattr( getattr(k, attr), m)( k ) ).all() 
+    
+    # much easier to debug later, well worth the 5 minutes of typing!
+    mapped_attr = getattr( domain_class, colum_attr )
+    filter_expr_callable = getattr( mapped_attr, filter_method )
+    filter_expression = filter_expr_callable( filter_value )
+    # this also means we can log things when confused, and easily drop into pdb:
+    log.debug("filter_expression %s" % filter_expression )
+    # pdb.set_trace - need to sort out why that expression is wrong!
+    
+    query = query.filter( filter_expression )
+
+
+Part 4 Exercises
+----------------
+Make a function that does the following:
+- accepts a dictionary with at two search terms
+    - the name of the shelter
+    - the name of a breed, named something like breed_name
+- searches for and returns pets matching the search terms 
+- builds the query up dynamically as shown in Part 4
+
+

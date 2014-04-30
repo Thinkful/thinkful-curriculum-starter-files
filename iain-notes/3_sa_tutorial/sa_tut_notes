@@ -1,0 +1,84 @@
+Notes on the SA tutorial:
+
+Sections:
+- what is an orm and why use one - DRAFT
+
+- setting up SQLAlchemy
+  - engine, metadata, concept of data mapper, unit of work
+  - the metadata registry, on Base.metadata
+  - the concept of the identity map  
+
+
+Questions:
+- have they used logging and pdb yet??
+ 
+Cover rolling back
+
+TO DO:
+- walk through the whole tutorial using sqllite
+
+Installing sqlite on all platforms:
+http://www.tutorialspoint.com/sqlite/sqlite_installation.htm
+
+- write introduction to SQLlite
+  - cover installing on all platforms
+  - connecting sqllite with python\
+  - how to make a database, list tables, describe tables;
+  .tables lists tables
+  .schema {tablename} describes table
+  .help lists commands
+  pragma table_info( {tablename} );
+- tip for folks that you can't end the . commands wth a semi-colon  
+- covering making a database 
+- after reading my piece, they should go read
+  http://www.sqlite.org/sqlite.html
+
+write content piece Introduction to Relational Databases, 
+Sqllite. and Postgres.
+
+Put this somewhere later:
+
+Normally we can set up the engine and Base class and just forget about them, however
+when things aren't working it's very helpful to understand which component is doing what for 
+debugging and making sense of the SQLAlchemy stack traces (the error output in the console).
+A common error is getting the creation of the different components out of order when refactoring
+a single file application into multiple files. It helps to remember the following:
+
+    * when a module is imported, all its code runs
+    * we need to create the Base class before defining data model classes
+    * we need to create the engine before any calls to metadata methods
+
+If you are having issues sorting out what runs when, use the log to see the order
+of execution in your terminal.
+
+
+TODO: 
+- write the intro to SQL the hard way
+- figure out what the assigned extensions will be
+  for it
+- figure out what the end result database should be
+  by the end of that for transition to the postgres 
+  assignment
+
+- postgres content: how to read documentation
+  and work through the official postgresql manual
+- chart out the postgres assignment
+  what are the input and output csv files going to look like
+
+
+Content writing:
+- Unit Overview: DONE DRAFT
+- SQLlite Intro: DONE, I think this can be an assignment?
+- SQL The Hard Way: 
+  - write the intro, include which exercises we want them to do
+  - write the extension assignment for it
+
+- POSTGRESQL:
+  - write the intro, guide to reading online documentation
+  - figure out the assignment
+
+- SQLA:
+  - DONE   
+  - write the domain model content, with todo
+  - write the querying content, with todo
+  - write the final assignment check list

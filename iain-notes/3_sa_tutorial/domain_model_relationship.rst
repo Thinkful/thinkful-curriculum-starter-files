@@ -1,0 +1,759 @@
+Lesson 3 Assignment 3, Domain Model Relationships
+=================================================
+
+In the previous assignment we added some new types to our domain models and
+added some new classes to our domain model. The real power of the SQLAlchemy ORM
+comes from it's flexible handling of mapped relationships, and we've seen the beginning
+of this with our many-to-one relationships between Breed and Species and between Pet and 
+Shelter. In this assignment we'll explore the details of one-to-many/many-to-one relationships further,
+and we'll introduce many-to-many relationships, association objects,  and self-referential
+parent-child relationships.  We'll also see how we can configure the mappers so that our 
+foreign key constraints do the right thing when objects are deleted or updated, and we'll
+discuss some common issues encountered when mapping and how to debug them.
+
+
+
+One-To-Many Relationships Revisited
+-----------------------------------
+
+One-To-Many or Many-To-One relationships are always constructed by having a foreign key from
+one domain model table reference the primary key from another. Whether the relationship is
+One-To-Many or Many-To-One is just a matter of from which side you are considering it. 
+The 'many' side will have a foreign key, referencing the 'one' side. Our Breed table has a 
+foreign key to Species: thus a Species may have many Breeds. 
+Having a common naming convention also helps us keep this
+straight. SQLAlchemy has no rules about names, but a good practise is to name your primary key
+on any given model "id" and name foreign keys as "{table name}_id", ie: "species_id". The mapped 
+relationship is usually named for the class being related to, ie "species". That said, some 
+database texts name the primary key of a table {table_name}_id. While you'll see this naming
+convention over the course of your career, this is less common in the world of dynamic
+languages such as Python and Ruby, as it can be very convenient to know the primary key
+is *always* "id". This allows us to handle objects the same way regardless of their class;
+we can use "retrieved_object.id" without regard for the type of object we have retrieved.
+
+
+When we create a one-to-many (or many-to-one) relationship in an SQLAlchemy model, we
+have two elements: our foreign key, and our mapped property. And we need to 
+to make sure the way we define the foreign key makes sense for how we will use the mapped
+property. For example, we know that a Breed *must* belong to a species, it makes no logical sense
+for a breed not to have a species, thus we can say that the foreign key to the species table
+should *always* have a valid species id, a null value can be disallowed.  Below is
+our Breed and Species model from our previous assingment ::
+
+    class Species(Base):
+        __tablename__ = 'species'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(String, nullable=False)
+
+    class Breed(Base):
+        __tablename__ = 'breed'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(String, nullable=False)
+        # we can specify that species_id is not nullable
+        species_id = Column(Integer, ForeignKey('species.id'), nullable=False ) 
+        
+        species = relationship("Species", backref=backref('breeds', order_by=name) )           
+
+In our code-along for assingment 2, we wanted to make sure that you could experiment with
+the results of deleting ends of relationships, but to make a robust model, we should
+ensure that species_id can not be null::
+
+    class Breed(Base):
+        __tablename__ = 'breed'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(String, nullable=False)
+        
+        # HERE: adding nullable=False to our foreign key column
+        species_id = Column(Integer, ForeignKey('species.id'), nullable=False ) 
+   
+        # mapped relationships
+        species = relationship("Species", backref=backref('breeds', order_by=name) )           
+
+
+With this change, if we try to make a breed without a species id, we'll get an error
+when we commit to the database. Below is an example of dropping into PDB during
+our script, and creating a Breed without a Species::
+
+    (Pdb) poodle = Breed(name="Poodle")
+    (Pdb) db_session.add(poodle)
+    (Pdb) db_session.commit()
+    2014-04-22 20:13:56,695 INFO sqlalchemy.engine.base.Engine BEGIN (implicit)
+    2014-04-22 20:13:56,696 INFO sqlalchemy.engine.base.Engine INSERT INTO breed (name, species_id) VALUES (?, ?)
+    2014-04-22 20:13:56,696 INFO sqlalchemy.engine.base.Engine ('Poodle', None)
+    2014-04-22 20:13:56,696 INFO sqlalchemy.engine.base.Engine ROLLBACK
+    *** IntegrityError: (IntegrityError) breed.species_id may not be NULL u'INSERT INTO breed (name, species_id) VALUES (?, ?)' ('Poodle', None)
+    (Pdb) 
+
+Note though that this error only happens when we *commit*. SQLAlchemy doesn't
+do any validation for us on our Python objects, we only hit the constraint when
+we write to the database. We could write a special constructor for our object
+if we wanted to really ensure that nobody created one without a species reference.
+This is likely overkill in a small app, but might be important in a team environment
+where somebody who creates Python objects might not be handling the code that commits.
+This is practise of writing methods that catch error conditions as quickly as possible
+is often called "Defensive Programming", and can be worhtwhile for large or complex 
+projects as we raise an exception as close to the error as possible. ::
+
+
+    class Breed(Base):
+
+        def __init__(self, **kwargs):
+            "constructor to ensure object is valid"
+            if not kwargs.get('name', None):
+                raise Exception("Breed objects must have a name")
+            if not kwargs.get('species_id', None) or not kwargs.get('species',None):
+                raise Exception("Error: Breed objects must have a species")
+            # we're good, create object
+            for key,val in kwargs.items():
+                setattr(self, key, val)
+
+Getting back to our new non-nullable definition for the species_id foreign key, 
+now before we commit we must have passed in either a species_id, or a related 
+species to the mapped relationship. Both the below will work:
+
+    # assuming dog is a valid species variable
+
+    # use the id from the dog variable for the species_id
+    Poodle = Breed(name='Poodle', species_id=dog.id)
+
+    # use the dog object as the species arg
+    poodle = Breed(name='Poodle', species=dog)
+        
+Generally the second style is preferable as it can be used even if the dog
+object has not yet been persisted and thus has no id. This allows us even
+to nest object definitions ::
+
+    # assuming the dog species doesn't yet exists and we don't
+    # need to hang on to a Python variable reference to it
+    poodle = Breed(name="Poodle", species=Species(name="Dog") )
+
+Once we've created poodle, we have access to the dog species object
+at **poodle.species**. Conversely, we can also access all the breeds 
+that use a species though the species object's 'breeds' attribute, as
+we've specified this as a **back reference** when we mapped the relationship::
+
+    # mapped relationship, in the Breed class
+    species = relationship("Species", backref=backref('breeds', order_by=name) )           
+    
+If we query for a species object, we will automatically have access to all the objects
+that use this species; SQLAlchemy issues the SQL for the join for us. You might
+think for a highly interconnected domain model that this would result in a lot of complex
+queries being issued even for selecting one object. However, SQLAlchemy uses *lazy loading*,
+meaning that the extra SQL for the join only gets generated and executed if we actually
+*use* species.breeds.
+
+You'll also see in the above that we pass in an order_by argument to the backref 
+function. This is used to generate an ORDER BY clause in the sql to load up the breeds
+and means we can control the order of the breeds at species.breed. We can override 
+the order in individual queries, but the automatically executed query will use the
+order we specify in our mapper.
+
+In our example relationship, we do not need to specify how the join to connect these
+classes is implemented. SQLAlchemy introspects on the table and is smart enough to 
+see that there is a foreign key relationship between the two tables. On the other hand, 
+if there more than one foreign key relationship between the same two tables, we would
+have needed to specify the exact conditions for the join. If you encounter this in 
+a more complex domain model, you'll need to use the primaryjoin argument,
+
+    species = relationship("Species", primaryjoin="Breed.species_id==Species.id",
+        backref="breeds")    
+
+Further examples of configuring relationships using the SQLAlchemy expression 
+language can be found in the SQLAlchemy documentation on Relationship Configuration,
+http://docs.sqlalchemy.org/en/rel_0_9/orm/relationships.html::
+
+One source of confusion for those new to SQLAlchemy is where to map relationships.
+We can actually map on either end, so long as we keep straight the backrefs.
+
+For example, with our Species and Breed class, we could map the relationship
+on either end. In the previous code we put the relationship in the Breed class,
+but we could alternately have done the following ::
+
+    class Breed(Base):
+        __tablename__ = 'breed'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(String, nullable=False)
+        species_id = Column(Integer, ForeignKey('species.id') ) 
+        
+        # we no longer need to add the breeds relationship as 
+        # we get it from the backref on the Species class
+
+    class Species(Base):
+        __tablename__ = 'species'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(String, nullable=False)
+    
+        # specify the relation on the species end
+        breeds = relationship("Breed", backref='species', order_by=Breed.name)
+
+Note that in the above there are a few other changes. We've reveresed the order
+of the classes so that the Species class with the mapped relationship comes
+second. This is so that "Breed.name" is in scope. Also we don't need the
+backref *function*, and the order_by clause is an argument to the relationship
+function not to the backref function. We also specify the order by with the
+full *Breed.name* argument. In SQAlchemy mapping you can declare a backref
+with either a string, or a refernce to the backref function. If we don't 
+need to configure the backref itself beyond the defualts, we can just use
+the string. If we need to configure it, such as with an order_by, we need
+to use the function in order to pass in additional arguments.
+
+It's important to understand that these two examples are functionally identical. In a 
+complex model with many classes and many joins, sorting out which class needs
+to be declared first can get tricky and knowing that you can map relationships 
+on either end can get you out of problems.
+
+
+Many-To-Many Relationships
+--------------------------
+
+When we map a Many-To-Many relationship with Declarative Base, the mapping gets
+a bit trickier as we have a joining table that is not attached to a specific model class,
+our "pet_person" table. We need to create a table outside of our model classes
+and then refer to it in the relationship declaration ::
+
+    from sqlalchemy import Table, Text
+
+    # our many-to-many association table, in our model *before* Pet class 
+    pet_person_table = Table('pet_person', Base.metadata,
+        Column('pet_id', Integer, ForeignKey('pet.id'), nullable=False),
+        Column('person_id', Integer, ForeignKey('person.id'), nullable=False)
+    )
+
+Note that we need to pass in our metadata object explicitly as this
+is declared outside of a Base class. (If we're using Declarative Base, this
+will be at Base.metadata) Next, in the classes that are going
+to use this table we need to explicitly refer to the association table
+as SQLAlchemy is not going to be able to automatically determine the join
+condition by introspecting. We do this with the "secondary" keyword argument ::
+
+    class Pet(Base):
+        __tablename__ = 'pet'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(Text, nullable=False)
+        # other attributes omitted ...
+        
+        # no foreign key here, it's in the many-to-many table        
+
+        # mapped relationship, pet_person_table must already be in scope!
+        people = relationship('Person', secondary=pet_person_table, backref='pets')
+
+In this case we don't need anything in the Person class as the mapping
+from that side is handled for us by the backref in the Pet class. Of course as
+we've seen, we could also have done it the other way, with a relationship in the
+Person class and backref for the Pet class. You may want to use comments in your
+classes to indicate which ones have mapped relationship properties comming
+from other classes ::
+
+    class Person(Base):
+        __tablename__ = 'person'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(Text, nullable=False)
+        
+        # mapped relationship 'pets' from backref on Pet class 
+        
+Using the Many-to-Many relationship is just as easy as with One-To-Many, we
+can remove and add items to the lists on each object, remembering that
+the relationship is now bi-directional ::
+
+    # add some pets to iain
+    iain.pets.append( titchy )
+    iain.pets.append( ginger )
+    # ginger could be removed from iain's pets using the backref
+    assert iain in ginger.people
+    ginger.people.remove(iain)
+    assert ginger not in iain.pets
+
+
+Exercises:
+----------
+1) Add the Pet to Person many-to-many relationship to our script.
+2) Add a new model, BreedTraits ("fluffly", "barky", "fast", etc). 
+   Build a many-to-many relationship between breed and BreedTraits.
+  
+
+Association Object
+------------------
+
+An Association Object is an extension to the concept of a Many-to-Many relationship.
+In our many-to-many example, we have a table used to capture the *relationship*, but this joining
+table does not have a Python model class associated with it. With the Association Object pattern,
+we take the same type of table but map it to a domain model class who's purpose is to 
+represent the relationship as an abstract object that we can work with in Python. Essentially,
+we take a many-to-many table, add one or more columns, and map it to a class. Our classes then
+have relationships to each other *through* one-to-many (and thus many-to-one) relationships
+with this association object instead of many-to-many relationships directly to each other. This
+is commonly used when you want to capture some data *about* the relationship, beyond just that
+it exists. For example, let's say we want to capture how long a pet has been the companion
+of a person. This is a value that will vary with the *relationship*, as opposed to the Pet.
+Snuffles has been the dog of John for 5 years, but as John got married 2 years ago, Snuffles
+has only been Sally's companion for 2 years. It makes sense for this value to be attached as
+an extra value on the table that attaches pets to people as it's a feature of the *relationship*,
+not of either the pet or the person. John then has a relationship to the association 
+which also has a relationship to the pet. 
+
+    class PetPersonAssoc(Base):
+        __tablename__ = 'pet_person_assoc'
+        
+        # the combination of the two columns below must be unique!
+        pet_id = Column(Integer, ForeignKey('pet.id'), primary_key=True)
+        person_id = Column(Integer, ForeignKey('person.id'), primary_key=True)
+        
+        # an integer for capturing years
+        length = Column(Integer)
+
+        person = relationship('Person', backref=backref('pet_assocs') )
+        pet = relationship('Person', backref=backref('person_assocs') )
+
+
+Now, there is some debate as to whether this object should also have an integer
+primary key. From a strict database design perspective, the primary key *is* the combination
+of pet_id and person_id. There should never be more than one entry for a given pair of 
+pet and person, and this combination is what captures the identity of the row. 
+This is called a "Composite Primary Key". Database purists would say that
+adding an additional primary key on top of this composite primary key is redundant and 
+thus breaks normalization. SQLAlchemy is designed to support complex real world databases,
+and thus has support for composite primary keys. 
+
+That said, from an application developer's perspective, a lot of code becomes easier to 
+manage if we can make the assumption that all classes always have a primary key called 'id',
+as we alluded to before.
+In this context, an additional primary key called 'id' would be called a "Surrogate Primary Key".
+It's not strictly necessary from a logic perspective, but it helps for practical programming purposes.
+If we know that all our
+domain model classes will have an ID called "id", then we have what is called a 
+'programming convention'. Conventions are not rules, but are assumptions we hold
+about the system, and smart use of conventions can speed up development. For most small applications
+with reasonable databases and small teams, conventions to make development easier are likely
+to be the best use of resources. The same may not hold true if we're talking about a huge 
+and complex database for an insurance company or a bank, where the database experts will be 
+in charge of the database, and strict database correctness is the number one concern, even
+if it means we double our development time. The Pet shelter is pretty tight for cash, so we 
+need to keep development quick so we're going to add a surrogate primary key
+to our association object ::
+
+    class PetPersonAssoc(Base):
+        __tablename__ = 'pet_person_assoc'
+    
+        # surrogate primary key
+        id = Column(Integer, primary_key=True)
+
+        # the combination of the two columns below must be unique!
+        # specifying primary_key=True on both accomplishes this
+        pet_id = Column(Integer, ForeignKey('pet.id'), primary_key=True, nullable=False)
+        person_id = Column(Integer, ForeignKey('person.id'), primary_key=True, nullable=False)
+        
+        # an integer for capturing years
+        years = Column(Integer)
+
+        person = relationship('Person', backref=backref('pet_assocs') )
+        pet = relationship('Pet', backref=backref('person_assocs') )
+  
+        # a repr to make debugging much easier! 
+        def __repr__(self):
+            return "PetPersonAssoc( %s : %s )" % ( self.pet.name, self.person.name) 
+
+Now when we use this relationship between John and Snuffles, we must create 
+intermediate association objects:
+
+        john.pet_assocs.append( PetPersonAssoc( pet=snuffles, years=2 ) )
+        # we can check is snuffles is in any of John's assocs
+        assert snuffles in [ pet for pet in john.pet_assocs ]        
+
+Association Objects are also commonly used in cases where we might want to capture
+some information that may change. For example, in a shopping cart, we want to associate
+products with a cart session, but we also must capture the price of the product when
+it was placed in the cart. We can't have people's totals change because the site administrator raised the 
+price one second before checkout. We can see that a simple many-to-many between products
+and the cart could lead to this problem if we tally the total cost of the order off
+the prices attached to each product, so if we add snapshot of the price to the association,
+we can make sure this doesn't happen.
+
+Another common use is when we want to keep a record of something that was "deleted" in the application.
+Some applications will use an association instead of a many-to-many, and add an 'active' flag and
+a timestamp. When the active flag is set to None, the system pretends that the many-to-many
+relationship is not there, but we still have a record that it did exist and was then deleted. This
+can be useful when we need to be able to undo an operation. 
+
+When using association objects, adding Python properties to the model classes for common
+operations can make our code more readable and hide implementation details:
+
+    class Person(Base):
+        # ... internals omitted ...
+        
+        # a read only property to get all of a person's pets
+        @property
+        def pets(self):
+            return [ assoc.pet for assoc in self.pet_assocs ]
+
+        # check for a pet, returns years of relationship or None if not in list
+        def has_pet(self, pet):
+            for assoc in self.pet_assocs:
+                if assoc.pet == pet:
+                    return assoc.years  
+            return None
+
+You can see that association objects can add a great deal of flexibility, but at the 
+cost of some additional code complexity and another layer of objects. When designing 
+the database for an application, it's worth taking the time to determine whether to 
+chose a many-to-many or an association relationship.
+
+SQLAlchemy even includes an extension to allow one to work with association objects as
+if they were many-to-many relationships, called Association Proxy. This can make the 
+code using associations more readable, but of course you need to understand the extension.
+We won't get into the details of Association Proxy, but you can read about it further
+on the SQLAlchemy site:  
+http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/associationproxy.html            
+
+Exercises:
+----------
+1) Alter our script so that the Pet to Person relationship uses an association object
+  capturing the number of years a Pet has been with a person.  
+
+2) Create an association object that models the nicknames a person uses for a pet,
+  with foreign keys to pet and person and a string for nickname. Add a method
+  to the pet class that returns all the nicknames used for the pet.
+
+3) (Extra) Create a new association for which person picked up which pet from which
+  shelter on what date. 
+
+
+Self-Referential Relationships - Adjacency List
+-----------------------------------------------
+
+Another common relationship in database designs is the Parent-Child relationship. This
+can be implemented in the database using what is called an Adjancency List, where a 
+table has a foreign key to itself to indicate a parent record.  This is
+really the same as a One-To-Many relationship, except that we need to be more explicit
+about the backref by specifying the "remote side". Without specifying the remote side
+SQLAlchemy can't sort out the difference between the two directions automatically.
+For example, if we wanted to be able to track the parent-child relationships of our pets ::
+
+    class Pet(Base):
+        __tablename__ = 'pet'
+        
+        id = Column(Integer, primary_key=True)
+        name = Column(Text, nullable=False)
+        
+        # foreign key to self, must be nullable, as some pets will be the roots of our trees!
+        parent_id = Column(Integer, ForeignKey('pet.id'), nullable=True ) 
+
+        # Many-to-One relationship
+        # NB: we must specify the remote side for the many-to-many backref to work
+        children = relationship('Pet', backref=backref('parent', remote_side=[parent_id] ) )
+
+In the above example, note one important difference from our previous One-To-Many example:
+we have specified the *key* for the parent side, but the *relationship* for the children. And in the
+backref we tell SQLAlchemy that to determine the *parent*, the remote side of the join should
+be the 'id' column as we are joining from parent_id to id. Now we can make a hierarchy of objects
+quite naturally ::
+
+    # test pet parent child relationships
+    root = Pet(name='Root')
+    child_1 = Pet(name='Child 1', parent=root)
+    child_2 = Pet(name='Child 2', parent=root)
+    grandchild_1 = Pet(name='Grandchild 1', parent=child_1)
+    grandchild_2 = Pet(name='Grandchild 2', parent=child_1)
+   
+    assert child_1 in root.children
+    assert len(root.children) == 2
+    assert len(root.children[0].children ) == 2
+    assert grandchild_1 in root.children[0].children
+    assert grandchild_1.parent.parent == root
+
+    # and again we can change relationships by removing and adding to the childred lists
+    # or writing to the parent attribute 
+    for child in child_1.children:
+        child_1.children.remove(child)
+    assert grandchild_1.parent == None
+
+
+While this kind of relationship can be tricky to get working when setting up your domain model,
+you'll find it's extremely useful for any kind of hierarchal data, such as building a tree of
+pulldown menus for a website.  It's easy to make mistakes with these
+complex mapped relationships, so remember that there are excellent (though dense) examples in the SQLAlchemy
+documentation for Relationship Configuration at http://docs.sqlalchemy.org/en/rel_0_9/orm/relationships.html 
+This is also a case where you may need to specify a join explicitly using the primaryjoin argument
+to the relationship.
+
+Exercises:
+----------
+1) Alter our script so that the Pet model includes a parent child relationship. Put
+  some data in to test this relationship.
+2) Do the same for the Person table. Ensure deletes are working correctly.
+
+
+The Cascade
+-----------
+
+In our previous lessons, we discussed the issue of the cascade: what should happen to objects
+in relationships when their related objects get deleted or updated. SQLAlchemy allows us to 
+create these database constraints by specifying cascade rules on mapped relationships.
+
+Rules for the cascade are a bit confusing, but normally they "just do the right thing". 
+The best thing to do is test out your relationships by deleting and updating both sides 
+of the relationship in a test script, monitoring the results in a database terminal session
+to see whether you're getting your expected behaviour or whether you are
+either deleting objects you didn't intend to delete or leaving orphans behind that shouldn't 
+still be hanging about. (For example, many-to-many records with invalid foreign keys!)  
+While working through this section, it's recommended
+that you use a database that you can have open in an sqlite3 or psql terminal while your application
+runs to verify when rows are getting deleted or updated. Use the debugger to freeze the program,
+run operations, and check in real time exactly what they are doing.
+
+If we don't specify anything in a relationship, the cascade rule used is "save-update, merge".
+(Note that this is actually a string, not a list of two different words.)
+For example, these two are functionally identical ::
+   
+    class Breed(Base):
+        # ... guts omitted ...
+     
+        # both these lines do the same thing
+        species = relationship("Species", backref="breed")
+        species = relationship("Species", backref="breed", cascade="save-update, merge")
+
+This default means that if we add a species to the session, and it already has a number
+of breeds related to it, they all are added and when we save, they all get saved. Pretty much
+"what we expect".
+
+
+Now let's say we have the above model and we create a breed and species pair but then
+delete our species ::
+
+    cat = Species(name="Cat")
+    persian = Breed(name="Persian", breed=cat)
+    db_session.add(cat)
+    db_session.commit()
+
+    # at this point, both are persisted and have IDs
+    assert cat.id
+    assert breed.id
+    
+    # now we delete cat
+    db_session.delete(cat)
+    db_commit()
+
+Because we have not asked for anything beyond the default cascade rules, we're left with
+an orphan breed, with a null for the foreign key to species. One tricky point is that 
+deleting our cat from db does *not* automatically delete the cat *Python variable*. It's still
+in Python scope, though no longer persisted or in the session. If we check in our
+database terminal session, cat is gone, but we could still ask cat for its id in the Python
+app, a common source of confusion or errors. ::
+
+    # cat has been deleted now
+    # we check in the db terminal session, and it's gone like a train!
+
+    # careful, we still have a non-persisted cat variable in scope...    
+    assert cat and cat.id
+    # but if we query the db for cat using its old id, it's not there
+    assert db_session.query(Species).get(cat.id) == None
+    # we could get rid of it conclusively with the below
+    cat = db_session.query(Species).get(cat.id)
+
+    # our persian breed is still there though, with an empty species_id column
+    assert persion.id
+    assert db_session.query(Breed).get(persian.id)
+    assert persion.species == None
+
+Sometimes this behaviour makes sense, as in cases where we really don't want accidental links
+deleting things. (Perhaps a menu entry and pages in a website for example). Other times it 
+means we have an irrational representation of reality in our database, potentially a source
+of nightmare debugging. Debuggin applications that are running "correctly" but have logical
+errors can be very frustrating as it's really hard to pinpoint where things went wrong (a
+good case for our previously mentioned Defensive Programming!). 
+Let's fix this so breeds really need to have a species ::
+
+    class Breed(Base):
+        ... other bits omitted ...
+        
+        # fix our foreign key so it can't be null
+        species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
+
+Now what happens if we run our deletion code again? (We're dropping into pdb
+here for illustration)
+
+    # in our script
+    pdb.set_trace()
+    (Pdb) db_session.delete(cat)
+    (Pdb) db_session.commit()
+    2014-04-23 16:52:41,320 INFO sqlalchemy.engine.base.Engine SELECT breed.id AS breed_id,
+      breed.name AS breed_name, breed.species_id AS breed_species_id 
+    FROM breed 
+    WHERE ? = breed.species_id ORDER BY breed.name
+    2014-04-23 16:52:41,320 INFO sqlalchemy.engine.base.Engine (1,)
+    2014-04-23 16:52:41,322 INFO sqlalchemy.engine.base.Engine UPDATE breed SET species_id=? WHERE breed.id = ?
+    2014-04-23 16:52:41,322 INFO sqlalchemy.engine.base.Engine (None, 1)
+    2014-04-23 16:52:41,323 INFO sqlalchemy.engine.base.Engine ROLLBACK
+    *** IntegrityError: (IntegrityError) breed.species_id may not be NULL u'UPDATE breed 
+      SET species_id=? WHERE breed.id = ?' (None, 1)
+    (Pdb) 
+
+We're getting an exception because our cascade rule does not delete the attached breed, but
+our foreign key rule says that species_id can't be null, and the two are conflicting. 
+In effect we've prevented a species from being deleted if it's going to leave orphans hanging about.
+This may well be the desired effect, it's a valid option: raise an exception on an invalid delete.
+In this case, the database rollsback the transcation and any changes bundled into this transaction
+will not have been persisted in the database.
+
+Another valid option would be to allow a species to be deleted, but ensure that when this happens
+all its dependents are also deleted. We can accomplish this with the cascade rule "all, delete" ::
+
+    class Breed(Base):
+        ... the usual omissions ...
+
+        # set the cascade rule on the backref to "all, delete, delete-orphan"
+        species = relationship("Species", backref=backref('breeds', order_by=name, 
+            cascade="all, delete, delete-orphan") )           
+
+We've asked the mapper to ensure that deletes from a species to a breed (the direction
+of the backref) will delete and delete orphans. Now when we delete ::
+
+    db_session.delete(cat)
+    db_session.commit()
+    
+    # check our terminal session, both cat and persian are gone
+    assert db_session.query(Species).get(cat.id) == None
+    assert db_session.query(Breed).get(persian.id) == None
+
+A tricky point is where the cascade rule goes. We've placed it on the backref (as an argument
+to the backref function) because we are cascading the One-To-Many relationship, the direction of the backref.
+One species has many breeds and the backref is for 'breeds'. Again, it's best to test these
+out in a controlled manner using your debugger and terminal session.
+
+One important note about the "all, delete" cascade rule is that in this case, dependents
+get deleted when a parent is deleted, *regardless* of whether the foreign key from breed
+to species is nullable. However, whether we can have a null in the foreign key changes
+what happens when we remove an association instead of deleting. If instead of deleting
+the cat, we are simply removing the breed from the cat's 'breeds' attribute, we get different
+behaviour. If our species_id foreign key on breed is nullable, we can remove the breed 
+from any species.breeds list and create an orphan:
+
+    # if species_id is nullable and cascade is "all, delete":
+    cat.breeds.remove(persian)
+    db_session.commit()
+    # persian continues to exist, with a null for species id, it's an orphan
+    assert persian not in cat.breeds
+     
+If it's not nullable, removing persian from cat.breeds and committing will again 
+raise an exception:
+
+    # if species_id is not nullable, and cascade is "all, delete"
+    cat.breeds.remove(persian)
+    db_session.commit()
+    # exception raised here!
+
+By using the cascade rule "all, delete, delete-orphan", we tell the cascade to delete 
+the orphan created when a breed is *removed* from a species list, as opposed to only
+deleting the orphan when a species is *deleted*. Now this will work, regardless of
+whether the species_id foreign key is nullable:
+
+    # species_id is not nullable, cascade rull is "all, delete, delete-orphan".
+    cat.breeds.remove(persian)
+    db_session.commit()
+    # persian has now deleted, while cat has not been deleted
+
+This behaviour can be desirable when dependent items only make sense if they are in 
+their dependent relationship, but we might not be deleting the parent.
+
+As you can see, it takes some planning to come up with the correct combination
+of foreign key constraints and cascade rules. Testing your model in pieces with only
+a few classes and some sample methods that create, update, and delete objects at the outset
+is almost always a good idea until you are very comfortable setting up SQLAlchemy mappers. 
+
+Classical Mapping Syntax
+------------------------
+
+Everything we've covered (and lot's more!) can also be done with Classical Mapping. In 
+fact, in cases where mapping between many classes gets complex, you may even find that
+moving some classes from Declarative Base style definitions to Classical Mapping definitions
+solves some dependency problems as we have additional flexibility with Classical Mapping. 
+We can run a collection of mappers after all our domain classes and tables have been 
+defined, ensuring everything we need is in scope. We won't go into the syntax in detail
+here but will demonstrate briefly what it looks like so that you're equipped to find
+more in the official docs. 
+
+A mapping with a relationship looks like this, notice the mapped properties become
+dictionary keys in the properties argument to the mapper function.::
+
+    species_table = Table("species", Base.metadata,
+        Column('id', Integer, primary_key=True),
+        Column('name', Text, nullable=False),
+    )
+    
+    class Species(object):
+        # just methods there!
+        def __repr__(self):
+            return self.name
+
+    breed_table = Table("breed", Base.metadata,
+        Column('id', Integer, primary_key=True),
+        Column('name', Text, nullable=False),
+        Column('species_id', ForeignKey('species.id'), nullable=False)
+    )
+    
+    class Breed(object):
+        def __repr__(self):
+            return self.name
+
+    # now run mappers for both 
+    mapper(Species, species_table)
+
+    mapper(Breed, breed_table, properties={
+        'species': relationship(Breed, backref=backref('breeds') )
+    })
+
+For further details on setting up relationships with Classical Mapping syntax
+see the SQLAlchemy official documentation on Classical Mapping:
+http://docs.sqlalchemy.org/en/rel_0_9/orm/mapper_config.html
+
+Exercises:
+----------
+
+1) Alter our script so that deleting a species automatically deletes any breeds.
+
+2) Revert your pet-to-person relationship to a many-to-many from an association. 
+   Make sure that deletes and updates do the right thing for this many-to-many table.
+
+2) Ensure that deleting a Pet also deletes any nickname association
+   columns from the previous exercises for this pet (and also the person-pet-shelter 
+   association if you did tha one).  
+
+
+Model Recap
+-----------
+If you've done all the exercises so far, your model should be pretty comprehensive.
+Below we have listed all the model classes and their relationships. Make sure your have
+a script including all these model classes and relationships, and that you understand
+where each one is coming from.
+
+    Person:
+        - has a parent child relationship with itself
+        - has a many-to-many with pet
+        - has an association with pet and nicknames
+        - (optional) has an association with pet & shelter
+
+    Pet:
+        - has a many-to-one relationship with Breed
+        - has a many-to-many with person
+        - has an association with person, with nickname extra data
+        - (optional) has an association with pet & shelter, with date data
+
+    Breed:
+        - has a one-to-many relationship with Pet
+        - has a many-to-many relationship with BreedTraits
+
+    Species:
+        - has a one-to-many relationship with Breed
+        
+    Shelter:
+        - has a one-to-many with Pet  (XXX: did this get done??)
+        - (optional) has an association with pet and person, with data data
+    
+    BreedTrait:
+        - has a many-to-many relationship with Breed
