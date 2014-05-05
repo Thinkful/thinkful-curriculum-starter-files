@@ -1,24 +1,5 @@
 Introduction to Using Database With Python
 ==========================================
-
-We've now got a pretty good handle on the basics of SQL, and we've build a database
-in sqlite and interacted with it over the sqlite3 terminal. In this lesson we'll 
-switch over to using the PostGreSQL RDBMS and learn how to use our database within
-a Python application.
-
-To begin with, let's create our postgres database. 
-
-Setup
------
-Using the database that you finished with in the last lesson, creat an SQL file
-by dumping the SQLite database. Then use psql terminal to create a new postgres
-database from the same contents. Verify that your new database is working by
-connecting to it with psql in the console and issuing some queries. We want
-to make sure that we can be looking at the state of our database as our Python 
-script executes. You may want to run psql in one tab of a terminal operation
-while running the Python script in another.
-(XXX: Ben is this ok??)
-
 Once that's done, we need to install the **psycopg** package that will Python
 will use to connect to PostGreSQL. You should be able to install it with pip,
 and verify that is working by importing from a Python interactive session ::
@@ -134,11 +115,6 @@ You *may* have to alter your table schema to allow these, figure that out.
   - make a third pass to populate the breed table, with proper keys to species table
   - make a fourth pass to populate the pet table
   - note: you'll need to normalize capitalization
-
-4)
-  - repeat V3, but this time add code that checks whether the value for 
-    a breed, shelter, or species table is already there and uses that entry if it is
-
 
 
 
