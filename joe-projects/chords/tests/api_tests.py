@@ -10,6 +10,7 @@ os.environ["CONFIG_PATH"] = "chords.config.TestingConfig"
 
 from chords import app
 from chords import models
+from chords.utils import upload_path
 from chords.database import Base, engine, session
 
 class TestAPI(unittest.TestCase):
@@ -23,7 +24,7 @@ class TestAPI(unittest.TestCase):
         Base.metadata.create_all(engine)
 
         # Create folder for test uploads
-        os.mkdir(app.config["UPLOAD_FOLDER"])
+        os.mkdir(upload_path())
 
     def tearDown(self):
         """ Test teardown """
@@ -31,7 +32,7 @@ class TestAPI(unittest.TestCase):
         Base.metadata.drop_all(engine)
 
         # Delete test upload folder
-        shutil.rmtree(app.config["UPLOAD_FOLDER"])
+        shutil.rmtree(upload_path())
 
 
     def test_file_upload(self):
@@ -51,7 +52,7 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(urlparse(data["path"]).path, "/uploads/test.txt")
 
-        path = os.path.join(app.config["UPLOAD_FOLDER"], "test.txt")
+        path = upload_path("test.txt")
         self.assertTrue(os.path.isfile(path))
         with open(path) as f:
             contents = f.read()
@@ -109,6 +110,15 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(urlparse(data[1]["file"]["path"]).path,
                          "/uploads/another_song.mp3")
 
+    def test_get_uploaded_file(self):
+        path =  upload_path("test.txt")
+        with open(path, "w") as f:
+            f.write("File contents")
 
+        response = self.client.get("/uploads/test.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "text/plain")
+        self.assertEqual(response.data, "File contents")
 
 

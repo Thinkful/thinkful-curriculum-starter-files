@@ -7,9 +7,10 @@ from jsonschema import validate, ValidationError
 
 import models
 import decorators
+import analysis
 from chords import app
 from database import session
-from analysis import calculate_chords
+from utils import upload_path
 
 
 @app.route("/api/songs", methods=["GET"])
@@ -43,8 +44,8 @@ def song_chords(id):
     if not song:
         return
 
-    path = song.file.local_path()
-    chords = calculate_chords(path)
+    path = upload_path(song.file.filename)
+    chords = analysis.calculate_chords(path)
     return Response(json.dumps(chords), 200, mimetype="application/json")
 
 @app.route("/api/files", methods=["POST"])
@@ -53,21 +54,20 @@ def song_chords(id):
 def file_post():
     file = request.files.get("file")
     if not file:
-        return
+        data = {"message": "Could not find file data"}
+        return Response(json.dumps(data), 422, mimetype="application/json")
 
     filename = secure_filename(file.filename)
     db_file = models.File(filename=filename)
     session.add(db_file)
     session.commit()
-    file.save(db_file.local_path())
+    file.save(upload_path(filename))
 
     data = db_file.asDictionary()
     return Response(json.dumps(data), 201, mimetype="application/json")
 
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploaded_file(filename):
-    # Converts /chords/uploads to /uploads.
-    path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
-    return send_from_directory(path, filename)
+    return send_from_directory(upload_path(), filename)
 
 

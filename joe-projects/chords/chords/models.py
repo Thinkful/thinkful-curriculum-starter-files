@@ -23,10 +23,6 @@ class File(Base):
     filename = Column(String(1024))
     song_id = Column(Integer, ForeignKey("songs.id"))
 
-    def local_path(self):
-        return os.path.join(app.root_path, app.config["UPLOAD_FOLDER"],
-                            self.filename)
-
     def asDictionary(self):
         return {
             "id": self.id,
