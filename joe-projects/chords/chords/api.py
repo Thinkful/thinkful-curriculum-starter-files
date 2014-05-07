@@ -28,7 +28,8 @@ def songs_post():
     data = request.json
     file = session.query(models.File).get(data["file"]["id"])
     if not file:
-        return
+        data = {"message": "Could not find file with id {}".format(id)}
+        return Response(json.dumps(data), 404, mimetype="application/json")
 
     song = models.Song(file=file)
     session.add(song)
@@ -42,7 +43,8 @@ def songs_post():
 def song_chords(id):
     song = session.query(models.Song).get(id)
     if not song:
-        return
+        data = {"message": "Could not find song with id {}".format(id)}
+        return Response(json.dumps(data), 404, mimetype="application/json")
 
     path = upload_path(song.file.filename)
     chords = analysis.calculate_chords(path)

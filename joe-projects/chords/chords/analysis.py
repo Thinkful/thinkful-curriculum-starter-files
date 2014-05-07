@@ -78,5 +78,6 @@ def analyse(filename, resample_to=2756, bt_hop_length=128,
                                          n_fft=chroma_n_fft)[0]
     chord_names = CHORD_NAMES[chords]
     return {"beats": list(beat_times),
-            "chords": [{"chord": chord_name, "time": chord_time} for chord_name, chord_time in zip(chord_names, chord_times)]}
+            "chords": [{"chord": chord_name, "time": chord_time} for chord_name, chord_time in zip(chord_names, chord_times)],
+            "tempo": tempo}
 
