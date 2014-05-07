@@ -70,6 +70,10 @@ div#chord {
     font-size: 6em;
 }
 
+div#beat {
+    height: 100%;
+}
+
 div#waveform-container {
     position: absolute;
     bottom: 0;

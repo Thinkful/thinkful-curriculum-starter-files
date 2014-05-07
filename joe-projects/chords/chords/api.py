@@ -48,6 +48,18 @@ def song_chords(id):
     chords = analysis.calculate_chords(path)
     return Response(json.dumps(chords), 200, mimetype="application/json")
 
+@app.route("/api/songs/<int:id>/analysis", methods=["GET"])
+@decorators.accept("application/json")
+def song_analysis(id):
+    song = session.query(models.Song).get(id)
+    if not song:
+        data = {"message": "Could not find song with id {}".format(id)}
+        return Response(json.dumps(data), 404, mimetype="application/json")
+
+    path = upload_path(song.file.filename)
+    data = analysis.analyse(path)
+    return Response(json.dumps(data), 200, mimetype="application/json")
+
 @app.route("/api/files", methods=["POST"])
 @decorators.require("multipart/form-data")
 @decorators.accept("application/json")

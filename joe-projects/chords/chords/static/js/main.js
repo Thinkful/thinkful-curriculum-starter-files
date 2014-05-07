@@ -1,12 +1,16 @@
 var Chords = function() {
     this.wavesurfer = Object.create(WaveSurfer);
     this.wavesurfer.init({container: '#waveform'});
-    this.wavesurfer.on("mark", this.setChord.bind(this));
+    this.wavesurfer.on("mark", this.onMark.bind(this));
 
     this.playButton = $("#play-button");
     this.playIcon = $("#play-button i");
     this.playButton.click(this.onPlayButtonClicked.bind(this));
     this.playing = false;
+
+    this.chordDiv = $("div#chord div div");
+    this.beatDiv = $("div#beat");
+
 
     $("#songs").on("click", ".song",
                    this.onSongClicked.bind(this));
@@ -33,17 +37,32 @@ Chords.prototype.onSongClicked = function(event) {
     var song = $(event.target);
     this.wavesurfer.load(song.data("path"));
 
-    var ajax = $.ajax('/api/songs/' + song.data('id') + '/chords', {
+    var ajax = $.ajax('/api/songs/' + song.data('id') + '/analysis', {
         type: 'GET',
         dataType: 'json'
     });
-    ajax.done(this.onGetChordsDone.bind(this));
-    ajax.fail(this.onFail.bind(this, "Getting chords"));
+    ajax.done(this.onGetAnalysisDone.bind(this));
+    ajax.fail(this.onFail.bind(this, "Getting analysis"));
 };
 
-Chords.prototype.onGetChordsDone = function(data) {
-    chords = data;
-    var duration = this.wavesurfer.getDuration();
+
+Chords.prototype.onGetAnalysisDone = function(data) {
+    var beats = data.beats;
+    for (var i=0; i<beats.length; i++) {
+        var beat = beats[i];
+        if (beat == 0) {
+            continue;
+        }
+
+        var mark = this.wavesurfer.mark({
+            position: beat,
+            color: 'rgba(0, 255, 0, 0.5)'
+        });
+        mark.isChord = false;
+        mark.isBeat = true;
+    }
+
+    var chords = data.chords;
     for (var i=0; i<chords.length; i++) {
         var chord = chords[i];
         if (chord.time == 0) {
@@ -51,15 +70,23 @@ Chords.prototype.onGetChordsDone = function(data) {
         }
 
         var mark = this.wavesurfer.mark({
-            position: chord.time * duration,
-            color: 'rgba(0, 255, 0, 0.5)'
+            position: chord.time,
+            color: 'rgba(255, 0, 0, 0.5)'
         });
+        mark.isChord = true;
+        mark.isBeat = false;
         mark.chord = chord.chord;
     }
 };
 
-Chords.prototype.setChord = function(mark) {
-    $("div#chord div div").text(mark.chord);
+Chords.prototype.onMark = function(mark) {
+    if (mark.isBeat) {
+        this.beatDiv.css("background-color",
+                         "hsl(" + Math.random() * 255 + ", 100%, 50%)");
+    }
+    if (mark.isChord != null) {
+        this.chordDiv.text(mark.chord);
+    }
 };
 
 Chords.prototype.onPlayButtonClicked = function() {
