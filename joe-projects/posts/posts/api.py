@@ -19,7 +19,7 @@ post_schema = {
 
 
 @app.route("/api/posts", methods=["GET"])
-@decorators.accept_json
+@decorators.accept("application/json")
 def posts_get():
     """ Get a list of posts """
     # Get the querystring arguments
@@ -32,13 +32,13 @@ def posts_get():
     posts = posts.all()
 
     # Convert the posts to JSON and return a response
-    data = json.dumps([post.asDictionary() for post in posts])
+    data = json.dumps([post.as_dictionary() for post in posts])
     return Response(data, 200, mimetype="application/json")
 
 
 @app.route("/api/posts", methods=["POST"])
-@decorators.accept_json
-@decorators.require_json
+@decorators.accept("application/json")
+@decorators.require("application/json")
 def posts_post():
     """ Add a new post """
     data = request.json
@@ -58,14 +58,14 @@ def posts_post():
 
     # Return a 201 Created, containing the post as JSON and with the
     # Location header set to the location of the post
-    data = json.dumps(post.asDictionary())
+    data = json.dumps(post.as_dictionary())
     headers = {"Location": url_for("post_get", id=post.id)}
     return Response(data, 201, headers=headers,
                     mimetype="application/json")
 
 
 @app.route("/api/posts/<int:id>", methods=["GET"])
-@decorators.accept_json
+@decorators.accept("application/json")
 def post_get(id):
     """ Single post endpoint """
     # Get the post from the database
@@ -79,6 +79,6 @@ def post_get(id):
         return Response(data, 404, mimetype="application/json")
 
     # Return the post as JSON
-    data = json.dumps(post.asDictionary())
+    data = json.dumps(post.as_dictionary())
     return Response(data, 200, mimetype="application/json")
 

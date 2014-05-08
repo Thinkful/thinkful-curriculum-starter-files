@@ -196,7 +196,8 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.mimetype, "application/json")
 
         data = json.loads(response.data)
-        self.assertEqual(data["message"], "Request must accept JSON")
+        self.assertEqual(data["message"],
+                         "Request must accept application/json data")
 
     def testUnsupportedMimetype(self):
         data = "<xml></xml>"
@@ -210,5 +211,6 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.mimetype, "application/json")
 
         data = json.loads(response.data)
-        self.assertEqual(data["message"], "Request must contain JSON")
+        self.assertEqual(data["message"],
+                         "Request must contain application/json data")
 
