@@ -12,7 +12,7 @@ class Post(Base):
     title = Column(String(128))
     body = Column(String(1024))
 
-    def asDictionary(self):
+    def as_dictionary(self):
         post = {
             "id": self.id,
             "title": self.title,
