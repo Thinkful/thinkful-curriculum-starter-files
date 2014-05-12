@@ -1,3 +1,6 @@
+[//]: <> (author: Benjamin White)
+[//]: <> (type: introduction)
+
 # Programming in Python Prework
 
 This unit is ideally to be completed as **prework** for this course, by the time of your start date. In the first lesson we provide review materials on HTML, CSS, command line, and Git. We then ask you to complete a simple coding challenge that demonstrates your mastery of this material. In the second lesson, we provide some introductory readings on the Python programming language and do some exercises on Python basics with strings, numbers, and datetime objects.
