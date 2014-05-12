@@ -1,5 +1,7 @@
 Introduction to Using Database With Python
 ==========================================
+[strarting point is pg running and filled with pets db]
+
 Once that's done, we need to install the **psycopg** package that will Python
 will use to connect to PostGreSQL. You should be able to install it with pip,
 and verify that is working by importing from a Python interactive session ::
