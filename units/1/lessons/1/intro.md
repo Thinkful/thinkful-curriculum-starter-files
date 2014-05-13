@@ -7,6 +7,7 @@ To complete the materials in the remainder of this course, your development envi
 
 The process for setting up your dev environment will vary depending on the platform of your computer. We'll set you in the right direction for Mac, Windows, and Nitrous.io platforms. That last one is a cloud-based platform that we recommend in general and specifically for students who would otherwise face configuration headaches to get the requirements fulfilled on their computer. 
 
+
 ## Goals
 
 *   Install and configure Python 2.76, virtualenv, and pip
