@@ -2,16 +2,16 @@ import sys
 import argparse
 import csv
 
-def put(name, snippet):
+def put(name, snippet, filename):
     """ Store a snippet with an associated name in the CSV file """
-    with open("snippets.csv", "a") as f:
+    with open(filename, "a") as f:
         writer = csv.writer(f)
         writer.writerow([name, snippet])
     return name, snippet
 
-def get(name):
+def get(name, filename):
     """ Retrieve the snippet with a given name from the CSV file """
-    with open("snippets.csv", "r") as f:
+    with open(filename, "r") as f:
         reader = csv.reader(f)
         for row_name, row_snippet in reader:
             if row_name == name:
@@ -27,13 +27,17 @@ def make_parser():
 
     # Subparser for the put command
     put_parser = subparsers.add_parser("put", help="Store a snippet")
-    put_parser.add_argument("name")
-    put_parser.add_argument("snippet")
+    put_parser.add_argument("name", help="The name of the snippet")
+    put_parser.add_argument("snippet", help="The snippet text")
+    put_parser.add_argument("filename", default="snippets.txt", nargs="?",
+                            help="The snippet filename")
     put_parser.set_defaults(command="put")
 
     # Subparser for the get command
     get_parser = subparsers.add_parser("get", help="Retrieve a snippet")
-    get_parser.add_argument("name")
+    get_parser.add_argument("name", help="The name of the snippet")
+    get_parser.add_argument("filename", default="snippets.txt", nargs="?",
+                            help="The snippet filename")
     get_parser.set_defaults(command="get")
     return parser
 
