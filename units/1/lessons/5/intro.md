@@ -5,7 +5,7 @@
 
 In this lesson, we’ll deal with objects, object oriented programming, and Python classes. We'll say a lot about what objects are in the course of this lesson, but for now, know that objects give us a way of modeling things and processes by allowing us to bundle together behaviors and properties into individual object instances. For instance, your neighbor's car could be modeled in software as an object with a weight property, wheels, maximum speed, length, etc. It also has behaviors like breaking, accelerating, signaling, etc. Object oriented programming is an approach to modeling concrete things like cars as well as more abstract things like relations between businesses and customers, friends and colleagues, etc.
 
-The material in this lesson will be the most difficult so far. The syntax for creating classes in Python is straightforward enough, but being able to reason well about using classes in object oriented programming requires understanding and practically using some challenging concepts like inheritance and abstraction. 
+The material in this lesson will be the most difficult so far. The syntax for creating classes in Python is straightforward enough, but being able to reason well about using classes in object oriented programming requires understanding and practically using some challenging concepts like inheritance. 
 
 If you're not familiar with these terms, don't worry. We'll explain these concepts and what you can do with them in this lesson, and you'll get a solid footing in Pythonic object oriented programming. As we move towards object oriented programming, we'll begin focusing more on software design and architecture decisions, as there becomes less new Python syntax to define and learn. 
 
