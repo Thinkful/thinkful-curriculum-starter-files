@@ -49,7 +49,7 @@ Other students will be on longer term learning paths, as they seek to change car
 *   Comfortable working with the command line
 *   Experience using Git and Github for revision control
 
-In the first lesson in this course, we provide resources for reviewing these prerequisites, if you need a refresher.
+If you need a refresher, we provide resources for reviewing these prerequisites in the first lesson of the course. 
 
 
 ## Setup Checklist
