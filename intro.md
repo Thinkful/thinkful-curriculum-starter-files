@@ -1,3 +1,8 @@
+[//]: <> (author: Benjamin White)
+[//]: <> (type: introduction)
+
+# Programming in Python
+
 ## Course Objective
 
 In this class you will learn the core skills required to program professionally using Python. You'll learn how to work with spreadsheets, REST APIs (both consuming and creating them), databases, and the Flask web framework. You'll also learn about test driven development (TDD), which is an approach to writing software that can produce more reliable, maintainable code. By the end of this course, you'll have a portfolio of completed projects that demonstrate the skills you've learned, and the know how to use Python in professional settings.
@@ -44,7 +49,7 @@ Other students will be on longer term learning paths, as they seek to change car
 *   Comfortable working with the command line
 *   Experience using Git and Github for revision control
 
-In the first lesson in this course, we provide resources for reviewing these prerequisites, if you need a refresher.
+If you need a refresher, we provide resources for reviewing these prerequisites in the first lesson of the course. 
 
 
 ## Setup Checklist

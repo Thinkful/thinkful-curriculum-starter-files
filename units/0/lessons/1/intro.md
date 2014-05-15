@@ -14,9 +14,3 @@ In the final assignment in this lesson, you'll be asked to code up a simple stat
 ### Goals
 *	Refresh on front end basics, command line, and Git/Github 
 *	Demonstrate mastery of these skills
-
-### Assignments
-1.	[Front End Refresh](..)
-2.  [Command Line Refresh](..)
-3.  [Git and Github Refresh](..) 
-4. 	[Front End Challenge](..)	

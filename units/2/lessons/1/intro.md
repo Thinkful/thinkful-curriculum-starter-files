@@ -1,1 +1,5 @@
-#   Modules and Packages
+[//]: <> (author: )
+[//]: <> (type: intro)
+
+#  Working with Spreadsheets and Modules
+
