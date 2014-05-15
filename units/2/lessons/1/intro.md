@@ -1,3 +1,5 @@
-#   Modules and Packages
+[//]: <> (author: )
+[//]: <> (type: intro)
 
-need to get namespacing in, here's a possible resource: http://bytebaker.com/2008/07/30/python-namespaces/
+#  Working with Spreadsheets and Modules
+
