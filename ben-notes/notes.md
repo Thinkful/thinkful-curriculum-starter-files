@@ -17,15 +17,8 @@ concepts and goals for each lesson
 
 ## unit 1
 
-*   scripting - https://docs.google.com/a/thinkful.com/document/d/1J8BE4nKHBzbKGCVwl85C2ZF7v48QqrbI9JXIvGsRRos/edit#heading=h.wsm5zt8h815
-    -   https://docs.google.com/a/thinkful.com/document/d/1woHNUHfK3YfDZeYwx3wNYmtNZAXAgT82_QeWhFvz3gA/edit#heading=h.893cxoproj3e
-
 fizzbuzz solution:
 https://gist.github.com/7028b3227f0886c308f5
 
-## unit 2
 
-*   logging
-*   argparse
-*   ben revisions of joe
-    -   need file i/o assignment in lesson1 
+

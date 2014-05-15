@@ -9,7 +9,9 @@ The material in this lesson will be the most difficult so far. The syntax for cr
 
 If you're not familiar with these terms, don't worry. We'll explain these concepts and what you can do with them in this lesson, and you'll get a solid footing in Pythonic object oriented programming. And as we move to object oriented programming, we'll begin focusing more on software design and architecture decisions, as there becomes less and less new Python syntax to define and learn. 
 
-You'll do several readings about object oriented programming in Python and do some exercises to get practice with Python's syntax for defining and instantiating classes. In the final assignment in this lesson, you'll be asked to use object oriented programming to model a real world situation, and you'll use your solution to the problem as a conversation piece with your mentor to think begin thinking about what makes good software design.
+You'll do several readings about object oriented programming in Python and do some exercises to get practice with Python's syntax for defining and instantiating classes. We'll learn how to think about *side effects* of functions and methods, which has to do with how functions do or do not change the state of objects passed in as arguments. 
+
+In the final assignment in this lesson, you'll be asked to use object oriented programming to model a real world situation, and you'll use your solution to the problem as a conversation piece with your mentor to think begin thinking about what makes good software design.
 
 
 ## Concepts
