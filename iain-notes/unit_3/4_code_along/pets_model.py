@@ -112,14 +112,6 @@ class Person(Base):
 
 
 ################################################################################
-def init_db(engine):
-    "initialize our database, drops and creates our tables"
-    # drop all tables and recreate
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
-
-
-################################################################################
 if __name__ == "__main__":
     # if run this model file as the main script, it will initialize our database
 
@@ -129,9 +121,11 @@ if __name__ == "__main__":
         print "aborting db init, exiting."
         sys.exit()
 
+    db_url = 'sqlite:///pets_code_along.db'
     # create an engine
-    engine = create_engine('sqlite:///pets_code_along.db', echo=True)
-    # if we asked to init the db from the command line, do so
-    init_db(engine)
+    engine = create_engine(db_url, echo=True)
+    # drop all tables and recreate
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
 
     print "Database initialized, exiting."

@@ -38,14 +38,59 @@ from pets_model import (
 class PetApp(object):
 
     def __init__(self, db_url):
-        self.dbs = self.get_db_session(db_url)
-        
-    def get_db_session(self, db_url):
-        "connect to the database and get a session"
+        "connect to the database and get an SQLA session"
         self.engine = create_engine(db_url, echo=False)
         self.Session = sessionmaker(bind=self.engine)
-        return self.Session()
+        self.dbs= self.Session()
 
+
+    def search(self, field_args):
+        """
+        top level method to search for pets from input args"
+        returns a formatted string list of pets to the terminal
+        """
+        print "Searching for pets: %s" % field_args
+        filter_dict = self.fields_to_dict(field_args)
+        pets = self.get_pets(filter_dict)
+        output = self.output_pet_list(pets)
+        return output
+
+
+    def add_pet(self, field_args):
+        """
+        top level method to add a new pet to the db
+        - creates breed, species, & shelter if needed
+        - returns string output with success message and pet name
+        - NB: does not yet have error handling
+        """
+        print "Adding pet to database: %s" % field_args
+        # convert fields to a dict of key/val pairs 
+        fields = self.fields_to_dict(field_args)
+        
+        # replace the value in the fields dict with the SQLA species obj or None
+        fields['species'] = self.get_species( fields['species'] ) if \
+            'species' in fields else None 
+            
+        fields['breed'] = self.get_breed( fields['breed'], species ) if \
+            'breed' in fields else None 
+
+        fields['shelter'] = self.get_shelter( fields['shelter'] ) if \
+            'shelter' in fields else None
+       
+        # all our relations are now either None or SQLA objects
+        
+        # convert our age, adopted, and dead fields to integers or None
+        fields['age'] = self.validate_int( fields['age'] )
+        for field_name in ('adopted','dead'):
+            fields[field_name] = self.validate_bool( fields[field_name] )
+        
+        # fields dict is now validated and converted.
+        pet = self.save_pet( fields )
+        output = self.output_new_pet(pet)
+        return output
+
+
+  
     def fields_to_dict(self, field_args):
         "convert command line field arguments into a dictionary"
         field_dict = {}
@@ -56,17 +101,75 @@ class PetApp(object):
 
     def normalize_name(self, name):
         "convert underscores to spaces and use title case"
-        
         name = name.replace('_',' ').title()
         return name
-    
 
-    def search(self, field_args):
-        "search for pets from args, print a list of pets"
-        
-        filter_dict = self.fields_to_dict(field_args)
-        print "Searching with search arguments: %s" % filter_dict
-        pets = self.get_pets(filter_dict)
+    def get_species(self, species_arg):
+        """
+        convert a species string to an instantiated species object
+        - optionally creates a new species in the db if need be
+        """
+        species_name = self.normalize_name( species_arg )
+        species = self.dbs.query(Species).filter(Species.name==species_name).first()
+        if not species:
+            species = Species(name=species_name)
+            self.dbs.add(species)
+        return species
+
+
+    def get_breed(self, breed_arg, species=None):
+        """
+        convert a breed string to an instantiated breed object
+        takes an optional species param
+        optionally creates a new breed in the db if need be
+        """
+        breed_name = self.normalize_name( breed_arg )
+        breed = self.dbs.query(Breed).filter(Breed.name==breed_name).first()
+        # we can only make a new breed if we got a species arg
+        if not breed and species != None:
+            breed = Breed(name=breed_name, species=species)
+            self.dbs.add(breed)
+        # NB: we could be returning None for breed, that's ok
+        return breed
+
+
+    def get_shelter(self, shelter_arg):
+        """
+        convert a shelter string to an instantiated shelter object
+        - optionally creates a new shelter in the db if need be
+        """
+        # we use the shelter name as is, no normalizing
+        shelter = self.dbs.query(Shelter).filter(
+            Shelter.name==shelter_name).first()
+        if not shelter:
+            shelter = Shelter(name=shelter_name)
+            self.dbs.add(shelter)
+        return shelter
+
+
+    def validate_int(self, str_val):
+        "return a valid int or None from a string field"
+        try:
+            int_val = int( str_val )
+        except ValueError:
+            int_val = None
+        return int_val
+     
+    def validate_bool(self, str_val):
+        "return a valid bool or None from a string field"
+        try:
+            bool_val = bool( int( str_val ) )
+        except ValueError:
+            bool_val = None
+        return bool_val       
+    
+  
+
+    def output_pet_list(self, pets):
+        "create the string output from a list of pets"
+        # NB: this could be unit tested without the database
+        # as we only need the pets param to contain objects with
+        # the right attributes
         output = "Results of your pet search:\n"
         for pet in pets:
             output += ( "%s, age %s. Breed: %s, Species: %s, Shelter: %s" %
@@ -79,77 +182,26 @@ class PetApp(object):
             else: 
                 output += " (adopted)"
             output += "\n"
-        print output     
-   
+        return output     
 
-    def add_pet(self, field_args):
-        "add a new pet to the db, creating breed, species, & shelter if need be"
 
-        print "Adding pet to database: %s" % field_args
-        fields = self.fields_to_dict(field_args)
-        # fields is a dict of key value pairs
-        if 'species' in fields:
-            species_name= self.normalize_name( fields.pop('species') )
-            # check if species is in db, if not, add it
-            species = self.dbs.query(Species).filter(Species.name==species_name).first()
-            if not species:
-                species = Species(name=species_name)
-                self.dbs.add(species)
-        else:
-            species = None
-        # replace the value in the fields dict with the SQLA species obj or None
-        fields['species'] = species
+    def output_new_pet(self, pet):
+        "create the string output for a new pet creation"
+        output = ("New pet created. Name: %s Age: %s: Adopted: %s Shelter: %s"
+            % (pet.name, pet.age, pet.adopted, pet.shelter) )
+        return output
 
-        if 'breed' in fields:
-            breed_name = self.normalize_name( fields.pop('breed') )
-            # check if this breed is already in the db
-            breed = self.dbs.query(Breed).filter(Breed.name==breed_name).first()
-            if not breed:
-                # add the breed, but *only* if we got a species
-                if species:
-                    breed = Breed(name=breed_name, species=species)
-                    self.dbs.add(Breed)
-        else:
-            breed = None
-        # replace the value in the fields dict with the SQLA species obj or None
-        fields['breed'] = breed
 
-        if 'shelter' in fields:
-            # check if this shelter is in db, if not, add it
-            shelter = self.dbs.query(Shelter).filter(
-                Shelter.name==fields['shelter'] ).first()
-            if not shelter:
-                shelter = Shelter(name=fields['shelter'])
-                self.dbs.add(shelter)
-        else:
-            shelter = None
-        fields['shelter'] = shelter
-
-        # make sure our input for adopted, dead, and age are valid
-        try:
-            if 'age' in fields:
-                fields['age'] = int( fields['age'] )
-        except:
-            fields.pop('age')
-
-        for bool_field in 'adopted', 'dead':
-            try:
-                if bool_field in fields:
-                    fields[bool_field] = bool( fields[bool_field] )
-            except:
-                fields.pop(bool_field)
-        
-        # fields dict is now validated and converted.
-        # use dict expansion to make our pet
+    def save_pet(self, fields):
+        "persist a pet to the DB from a dict of values"
         new_pet = Pet()
         for attr,value in fields.items():
             if hasattr(Pet, attr):
                 setattr(new_pet, attr, value)
         self.dbs.add( new_pet )
         self.dbs.commit()
-        print "New pet created."
-
-
+        return new_pet 
+            
 
     def get_pets(self, filter_dict):
         "return a list of Pet objects for a filter dict"
@@ -185,6 +237,7 @@ class PetApp(object):
         return pets
 
 
+
 ################################################################################
 if __name__=="__main__":
 
@@ -197,13 +250,16 @@ if __name__=="__main__":
         help="Add a new pet instead of searching")
     args = parser.parse_args()
 
+    # this could come from a command line arg or an ENV variable
     db_url = "postgresql:///pets"
+
     # instantiate an instance of our PetApp  
-    PetApp = PetApp(db_url=db_url)
+    pet_app = PetApp(db_url=db_url)
     
     # call the pet app to either add a pet or search for pets
     if args.add:
-        PetApp.add_pet(args.fields)
+        output = pet_app.add_pet(args.fields)
+        print output
     else:
-        PetApp.search(args.fields)
-
+        output = pet_app.search(args.fields)
+        print output
