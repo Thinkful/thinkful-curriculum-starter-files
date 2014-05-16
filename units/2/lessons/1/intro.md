@@ -1,5 +1,5 @@
-[//]: <> (author: )
+[//]: <> (author: Benjamin White )
 [//]: <> (type: intro)
 
-#  Working with Spreadsheets and Modules
+#  Working with Spreadsheets 
 
