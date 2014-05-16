@@ -9,7 +9,7 @@ In this class you will learn the core skills required to program professionally 
 
 ## Course Structure
 
-This course consists of five units. Unit 1 guides you through setting up your development environment and programming basics in Python. It also contains review materials to refresh your knowledge of HTML, CSS, Git and Github, and working from the command line.
+This curriculum consists of five units. Unit 1 guides you through setting up your development environment and programming basics in Python. It also contains review materials to refresh your knowledge of HTML, CSS, Git and Github, and working from the command line.
 
 In Unit 2, we'll start applying the building blocks we mastered in Unit 1 to write programs that read from and write to spreadsheets and send data to and get data from APIs. We'll also learn about test driven development and get experience writing unit tests.
 
