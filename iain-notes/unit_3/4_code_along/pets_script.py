@@ -76,22 +76,15 @@ class PetApp(object):
 
         fields['shelter'] = self.get_shelter( fields['shelter'] ) if \
             'shelter' in fields else None
-       
         # all our relations are now either None or SQLA objects
         
-        # convert our age, adopted, and dead fields to integers or None
-        fields['age'] = self.validate_int( fields['age'] )
-        for field_name in ('adopted','dead'):
-            fields[field_name] = self.validate_bool( fields[field_name] )
-        
-        # fields dict is now validated and converted.
         pet = self.save_pet( fields )
         output = self.output_new_pet(pet)
         return output
 
 
-  
-    def fields_to_dict(self, field_args):
+    @staticmethod
+    def fields_to_dict(field_args):
         "convert command line field arguments into a dictionary"
         field_dict = {}
         for field in field_args:
@@ -99,7 +92,8 @@ class PetApp(object):
             field_dict[key] = value
         return field_dict
 
-    def normalize_name(self, name):
+    @staticmethod
+    def normalize_name(name):
         "convert underscores to spaces and use title case"
         name = name.replace('_',' ').title()
         return name
@@ -147,25 +141,8 @@ class PetApp(object):
         return shelter
 
 
-    def validate_int(self, str_val):
-        "return a valid int or None from a string field"
-        try:
-            int_val = int( str_val )
-        except ValueError:
-            int_val = None
-        return int_val
-     
-    def validate_bool(self, str_val):
-        "return a valid bool or None from a string field"
-        try:
-            bool_val = bool( int( str_val ) )
-        except ValueError:
-            bool_val = None
-        return bool_val       
-    
-  
-
-    def output_pet_list(self, pets):
+    @classmethod
+    def search_output(cls, pets):
         "create the string output from a list of pets"
         # NB: this could be unit tested without the database
         # as we only need the pets param to contain objects with
