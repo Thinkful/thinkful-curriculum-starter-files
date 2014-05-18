@@ -8,11 +8,15 @@
   },
   "author": "Benjamin E White",
   "license": "ISC",
+  "dependencies": {
+    "gulp-marked": "git://github.com/lmtm/gulp-marked.git#7590ad0fd"
+  },
   "devDependencies": {
     "grunt": "^0.4.4",
     "marked": "^0.3.2",
     "gulp": "^3.6.2",
     "gulp-util": "^2.2.14",
-    "gulp-flatten": "0.0.2"
+    "gulp-flatten": "0.0.2",
+    "highlight.js": "^8.0.0"
   }
 }
