@@ -13,7 +13,6 @@
     "marked": "^0.3.2",
     "gulp": "^3.6.2",
     "gulp-util": "^2.2.14",
-    "gulp-markdown": "^0.1.2",
     "gulp-flatten": "0.0.2"
   }
 }
