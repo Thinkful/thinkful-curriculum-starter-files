@@ -1,16 +1,24 @@
 [//]: <> (author: Benjamin White)
-[//]: <> (type: intro)
+[//]: <> (type: introduction)
 
-# Control Flow
+#   Python's Data Types
 
-This lesson is all about control flow. Control flow has to do with the different ways we can control the order that instructions get completed in a program. In this lesson, we’ll learn how to use conditionals and loops to achieve control flow. We'll also learn how to use try/except/finally blocks to control how our program responds in the case of errors. With these simple constructs, you can write programs of considerable complexity.
+In the prework for this course, you got experience with Python syntax and some of the basic data types. In this lesson, you'll round out your knowledge of Python's primary data types. You'll learn more about working with strings; you'll learn about the special data type `none`, which is for representing the absence of a value. We'll then focus on Python's objects for handling collections of things: lists, tuples, sets, and dictionaries. 
 
-Like in the previous lesson, we’re still learning the basic building blocks. The real pay off will come in Units 2 through 5 where we use these tools to build practical applications. That being said, at the end of this lesson, you’ll build a [FizzBuzz](http://en.wikipedia.org/wiki/Fizz_buzz) program from scratch. Building this simple app will bring together much of what you will have learned so far about strings, numbers, conditionals, and loops. 
+The Python language fundamentals taught in this lesson are worth memorizing sooner rather than later. Until these are second nature, you'll struggle to be an efficient Python programmer. 
 
-Fizzbuzz may seem like a pointless app on the surface, but its a common interview question for technical positions and is an effective way to assess a candidate's grasp of programming fundamentals (and [apparently](http://blog.codinghorror.com/why-cant-programmers-program/) many candidates **can't** impelement it!).
+<note>
+If you missed the prework, the key things to do are:
+- Read through the [General Introduction](http://interactivepython.org/runestone/static/thinkcspy/GeneralIntro/introduction.html) of *How to Think Like a Computer Scientist* for a high level introduction to Python. 
+- Work through these [exercises](http://www.codecademy.com/courses/introduction-to-python-6WeG3/0/1?curriculum_id=4f89dab3d788890003000096), which introduce strings, numbers, arithmetic operations, commenting and indenting code, and variable assignment.
+- Work through these [exercises](http://www.codecademy.com/courses/python-beginner-sRXwR/0/1?curriculum_id=4f89dab3d788890003000096), which introduce commonly used methods all strings in Python have.
+- Work through these [exercises](http://www.codecademy.com/courses/python-beginner-en-zFPOx/0/1?curriculum_id=4f89dab3d788890003000096) to familiarize you with Python's built in datetime object, which simplifies converting and formatting dates and times.
+</note>
 
 ## Goals
 
-- Understand the concept of control flow.
-- Know how to use the following Python keywords: `if`, `else`, `elif`, `while`, `for`, `try`, `except`, `finally`.
-- Learn how to use .raw_input() to get user inputs from the command line and how you can make your Python scripts executable from the command line.
+- Understand Python's basic data types
+- Learn more about string formatting
+- Learn how to represent and manipulate collections of things
+
+

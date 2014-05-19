@@ -9,7 +9,7 @@ var concat = require('gulp-concat');
 
 source = {
 	assignments: './units/**/lessons/**/assignments/*.md',
-	assets: './units/**/lessons/**/assignments/assets/*.{jpg,png}',
+	assets: './units/**/lessons/**/assignments/*.{jpg,png}',
 	intros: ['./intro.md', './units/**/intro.md', './units/**/lessons/**/intro.md']
 };
 

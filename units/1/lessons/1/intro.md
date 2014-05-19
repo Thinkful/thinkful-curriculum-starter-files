@@ -1,15 +1,16 @@
 [//]: <> (author: Benjamin White)
 [//]: <> (type: introduction)
 
-#  Setting Up Your Development Environment
+# Prerequisites and Warmup
 
-To complete the materials in the remainder of this course, your development environment will need to meet some minimal requirements that we'll take care of in this lesson. In addition to having Git configured and Sublime Text 3 installed, we'll walk you through installing Python 2.76, [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/), and [pip](https://pypi.python.org/pypi/pip) installed on the computer you'll be developing on. 
+In this lesson, we'll review the prerequisites you need to succeed in this course: HTML, CSS, Git/Github and command line basics. You'll complete a simple coding challenge that demonstrates your mastery of these requirements, and then we'll go on to learn about the high level goals and characterstics of the Python language, and do some drills to practice basic syntax for strings, numbers, and datetime objects.
 
-The process for setting up your dev environment will vary depending on the platform of your computer. We'll set you in the right direction for Mac, Windows, and Nitrous.io platforms. That last one is a cloud-based platform that we recommend in general and specifically for students who would otherwise face configuration headaches to get the requirements fulfilled on their computer. 
+The goal of this unit is to get you back into the programming mindset if you're not already there, and to ensure prerequisite knowledge that you need to have to succeed in this course. If you have made it through this unit by your start date, you'll be able to hit the ground running and rapidly make progress.
+
+**Goals**
+
+*   Review and demonstrate mastery of HTML, CSS, Git, Github, and command line basics
+*   High level introduction to Python as a programming language
+*   Familiarity with numbers, strings, and date time objects in Python
 
 
-## Goals
-
-*   Install and configure Python 2.76, virtualenv, and pip
-*   Install Sublime Text plugins that will improve your work flow
-*   Establish a safe and self documenting workflow for Git
