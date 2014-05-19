@@ -2,6 +2,10 @@ var gulp = require('gulp');
 var marked = require('gulp-marked');
 var flatten = require('gulp-flatten');
 var gutil = require('gulp-util');
+var glob = require('glob');
+var concat = require('gulp-concat');
+// var jsdom = require("jsdom").jsdom;
+
 
 source = {
 	assignments: './units/**/lessons/**/assignments/*.md',
@@ -14,6 +18,8 @@ build = {
 	assetsFolder:'./build/assets/', 
 	xmlFolder: './build/xmlPartials/'
 };
+
+
 
 gulp.task('default', ['gatherAssets', 'buildIntros', 'buildAssignments']);
 
@@ -45,18 +51,6 @@ gulp.task('gatherAssets', function(){
     .pipe(gulp.dest(build.assetsFolder));
 });
 
-gulp.task('generateOutline', function() {
-	// iterate over build file structure and create outline
-	// write outline to top level build file
-})
-
-function wrapInTags(text, open, close) {
-	return open + text + close;
-}
-
-function wrapAssignmentXML(text) {
-	return wrapInTags('<content>\n' + text + '</content>')
-}
 
 
 function escape(html, encode) {
