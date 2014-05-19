@@ -10,6 +10,7 @@ source = {
 };
 
 build = {
+	build: './build/',
 	assetsFolder:'./build/assets/', 
 	xmlFolder: './build/xmlPartials/'
 };
@@ -20,6 +21,8 @@ gulp.task('buildAssignments', function () {
     return gulp.src(source.assignments)
     	.pipe(marked({
     		renderer: rendererConfig,
+    		
+    		// ### WE SHOULD ## be moving hljs out of Angular and into build process    		//
     		// highlight: function (code, lang) {
     		// 	gutil.log(code);	
    			// 	 return require('highlight.js').highlight(code, lang).value; // need to get this working, circumvent highlight in ang directive altogether
@@ -41,6 +44,11 @@ gulp.task('gatherAssets', function(){
   	.pipe(flatten())
     .pipe(gulp.dest(build.assetsFolder));
 });
+
+gulp.task('generateOutline', function() {
+	// iterate over build file structure and create outline
+	// write outline to top level build file
+})
 
 function wrapInTags(text, open, close) {
 	return open + text + close;
@@ -77,7 +85,7 @@ var rendererConfig = {
 		return tags[0] + text + tags[1];
 	},
 	image: function(href, title, text) {
-		return '<p><img source="' + href + '" asset></p>';
+		return '<img source="' + href + '" asset>';
 	},
 
 	link: function(href, title, text) {
@@ -88,8 +96,5 @@ var rendererConfig = {
 		
 		return '<codesnippet language="' + language + '">' + escape(code) + '</codesnippet>\n';
 	},
-
-	// if header and stripped is equal to "Comprehension Check", then add comprehension check class to it
-	// then we just style this. target sibling ul/ol of h4s with 'comprehension-check' class
 		
 };
