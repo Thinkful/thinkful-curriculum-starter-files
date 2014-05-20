@@ -2,6 +2,7 @@
 [//]: <> (type: intro)
 
 # Object Oriented Programming in Python
+##### 7 hours
 
 In this lesson, we’ll deal with objects, object oriented programming, and Python classes. We'll say a lot about what objects are in the course of this lesson, but for now, know that objects give us a way of modeling things and processes by allowing us to bundle together behaviors and properties into individual object instances. For instance, your neighbor's car could be modeled in software as an object with a weight property, wheels, maximum speed, length, etc. It also has behaviors like breaking, accelerating, signaling, etc. Object oriented programming is an approach to modeling concrete things like cars as well as more abstract things like relations between businesses and customers, friends and colleagues, etc.
 

@@ -2,6 +2,7 @@
 [//]: <> (type: intro)
 
 # Functions
+##### 3 hours
 
 In this lesson, you’ll learn all about functions. Functions give you a way to group together and re-use pieces of code that accomplish a given task. You'll use functions in nearly every serious program you write, and they allow you to write reusable, clean, maintainable code.
 

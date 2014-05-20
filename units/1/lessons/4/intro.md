@@ -2,6 +2,7 @@
 [//]: <> (type: intro)
 
 # Control Flow
+##### 7 hours
 
 This lesson is all about control flow. Control flow has to do with the different ways we can control the order that instructions get completed in a program. In this lesson, we’ll learn how to use conditionals and loops to achieve control flow. We'll also learn how to use try/except/finally blocks to control how our program responds in the case of errors. With these simple constructs, you can write programs of considerable complexity.
 

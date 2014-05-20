@@ -2,6 +2,7 @@
 [//]: <> (type: intro)
 
 # Programming Basics in Python
+##### 30 hours
 
 In this unit we'll review the prerequisites you need to have to succeed in this course (basic HTML and CSS and Git and Command line basics), and then we'll move on to set up our development environment and then go on to learn programming fundamentals in Python. The concepts and language features we'll talk about form the building blocks of all your future programs, no matter what problem domain you're working with. And while understanding and memorizing the Python language features covered in this won't yet make you a good Python programmer, they will equip you with the tools you'll need to solve real world problems in almost any domain imaginable. 
 

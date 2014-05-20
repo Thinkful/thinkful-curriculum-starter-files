@@ -75,6 +75,10 @@ var rendererConfig = {
 		else if (level==2) {
 			tags = ['<header>', '</header>\n']
 		}
+		else if (level==5) {
+			tags = ['<time>', '</time>\n']
+		}
+		
 		
 		return tags[0] + text + tags[1];
 	},

@@ -2,6 +2,7 @@
 [//]: <> (type: introduction)
 
 # Prerequisites and Warmup
+##### 9 hours
 
 In this lesson, we'll review the prerequisites you need to succeed in this course: HTML, CSS, Git/Github and command line basics. You'll complete a simple coding challenge that demonstrates your mastery of these requirements, and then we'll go on to learn about the high level goals and characterstics of the Python language, and do some drills to practice basic syntax for strings, numbers, and datetime objects.
 
