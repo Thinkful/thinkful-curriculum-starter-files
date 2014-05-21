@@ -10,7 +10,7 @@ from urls import *
 def get_request_token():
     """ Get a token allowing us to request user authorization """
     oauth = OAuth1(CLIENT_KEY, client_secret=CLIENT_SECRET)
-    response = requests.post(API_URL + REQUEST_TOKEN_URL,
+    response = requests.post(REQUEST_TOKEN_URL,
                              auth=oauth)
     credentials = urlparse.parse_qs(response.content)
 
@@ -23,7 +23,7 @@ def authorize(request_token):
     Redirect the user to authorize the client, and get them to give us the
     verification code.
     """
-    authorize_url = API_URL + AUTHORIZE_URL
+    authorize_url = AUTHORIZE_URL
     authorize_url = authorize_url.format(request_token=request_token)
     print 'Please go here and authorize: ' + authorize_url
     return raw_input('Please input the verifier: ')
@@ -38,7 +38,7 @@ def get_access_token(request_token, request_secret, verifier):
                    resource_owner_secret=request_secret,
                    verifier=verifier)
 
-    response = requests.post(API_URL + ACCESS_TOKEN_URL, auth=oauth)
+    response = requests.post(ACCESS_TOKEN_URL, auth=oauth)
     credentials = urlparse.parse_qs(response.content)
     access_token = credentials.get('oauth_token')[0]
     access_secret = credentials.get('oauth_token_secret')[0]

@@ -26,13 +26,13 @@ def make_parser():
 
 def get_timeline(auth):
     """ Get the home timeline for the authenticated user """
-    response = requests.get(API_URL + TIMELINE_URL, auth=auth)
+    response = requests.get(TIMELINE_URL, auth=auth)
     return response.json()
 
 def post_tweet(post, auth):
     """ Post a tweet """
     data = {"status": post}
-    response = requests.post(API_URL + TWEET_URL, data=data, auth=auth)
+    response = requests.post(TWEET_URL, data=data, auth=auth)
 
 def main():
     """ Main function """
