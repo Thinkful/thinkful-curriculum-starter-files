@@ -25,14 +25,17 @@ def make_parser():
     return parser
 
 def get_timeline(auth):
+    """ Get the home timeline for the authenticated user """
     response = requests.get(API_URL + TIMELINE_URL, auth=auth)
     return response.json()
 
 def post_tweet(post, auth):
+    """ Post a tweet """
     data = {"status": post}
     response = requests.post(API_URL + TWEET_URL, data=data, auth=auth)
 
 def main():
+    """ Main function """
     parser = make_parser()
     arguments = parser.parse_args(sys.argv[1:])
     # Convert parsed arguments from Namespace to dictionary
