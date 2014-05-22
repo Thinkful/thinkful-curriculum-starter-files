@@ -44,7 +44,7 @@ def main():
 
     sorted_language_totals = sorted(language_totals.iteritems(),
                                     key=operator.itemgetter(1),
-                                    reverse=True):
+                                    reverse=True)
 
     for language_name, number_of_bytes in sorted_language_totals:
         percentage = 100.0 * number_of_bytes / total_bytes
