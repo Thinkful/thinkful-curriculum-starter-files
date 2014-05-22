@@ -42,9 +42,11 @@ def main():
     language_dictionaries = get_language_dictionaries(repositories)
     language_totals, total_bytes = accumulate_languages(language_dictionaries)
 
-    for language_name, number_of_bytes in sorted(language_totals.iteritems(),
-                                                 key=operator.itemgetter(1),
-                                                 reverse=True):
+    sorted_language_totals = sorted(language_totals.iteritems(),
+                                    key=operator.itemgetter(1),
+                                    reverse=True):
+
+    for language_name, number_of_bytes in sorted_language_totals:
         percentage = 100.0 * number_of_bytes / total_bytes
         print "{}: {:.2f}%".format(language_name, percentage)
 
