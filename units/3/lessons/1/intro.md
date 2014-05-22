@@ -2,7 +2,7 @@
 name: Learning SQL with SQLite
 author: Iain Duncan
 type: intro
-time: TBD
+time: 7 hours
  -->
 
 In this first lesson, we'll get SQLite up and running. SQLite is a lightweight and easy to configure database suitable for developing web apps. We'll learn how to use the command line interface to interact with SQLite databases, and create a small  sample database of pets, people, and pet shelters. We'll work with this database to learn the fundamentals of [SQL (structured query language)](http://en.wikipedia.org/wiki/SQL): creating tables, inserting records, modifying and deleting them, and querying them.
