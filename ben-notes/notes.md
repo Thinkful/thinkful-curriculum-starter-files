@@ -15,6 +15,11 @@ concepts and goals for each lesson
 
 ## Unit 3 
 
+unit 3 lesson 1 assignment 3 -- finish this. get starting point etc. for exercises."- Redo your pet table to use a foreign key to the breed table
+"???
+
+unit 3 lesson 7 complete it?
+
 *   After done with u3 revisions, Iain to go through and add starting points  
 *   provide resource that introduces relational databases as such (need idea of pk, )
 *   http://zetcode.com/db/sqlite/tables/
