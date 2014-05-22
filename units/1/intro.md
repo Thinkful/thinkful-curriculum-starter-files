@@ -10,7 +10,7 @@ In this unit, you'll fill out your knowledge of Python basics. You'll learn abou
  
 In the next unit, you'll start working on real world projects. This unit mainly focuses on background knowledge and drills to equip you for the real world projects you'll spend the rest of your life as a programmer tackling. That being said, it does contain some small projects that you'll code up that are geared toward consolidating your knowledge of programming fundamentals in Python. For instance, you'll write a [Fizz Buzz](http://en.wikipedia.org/wiki/Fizz_buzz) program, and at the end of the unit, you'll practice using object oriented programming to model a real world scenario.
 
-The best advice we can give you aboug this unit is to master the skills it teaches as soon as possible. If there's a time to cram in this course, it's in this first unit. The first big hump you face as a Python programmer is learning these skills. But once you do, you'll be able to do much more than canned projects; you'll be able to apply programming to real world problems.
+The best advice we can give you about this unit is to master the skills it teaches as soon as possible. If there's a time to cram in this course, it's in this first unit. The first big hump you face as a Python programmer is learning these skills. But once you do, you'll be able to do much more than canned projects; you'll be able to apply programming to real world problems.
 
 **Goals**
 
