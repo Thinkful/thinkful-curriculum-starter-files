@@ -18,7 +18,7 @@ def get_request_token():
     request_secret = credentials.get("oauth_token_secret")[0]
     return request_token, request_secret
 
-def authorize(request_token):
+def get_user_authorization(request_token):
     """
     Redirect the user to authorize the client, and get them to give us the
     verification code.
@@ -56,13 +56,13 @@ def get_stored_credentials():
         credentials = json.load(f)
         return credentials["access_token"], credentials["access_secret"]
 
-def get_auth():
+def authorize():
     """ A complete OAuth authentication flow """
     try:
         access_token, access_secret = get_stored_credentials()
     except IOError:
         request_token, request_secret = get_request_token()
-        verifier = authorize(request_token)
+        verifier = get_user_authorization(request_token)
         access_token, access_secret = get_access_token(request_token,
                                                        request_secret,
                                                        verifier)

@@ -42,7 +42,7 @@ def main():
     arguments = vars(arguments)
     command = arguments.pop("command")
 
-    auth = authorization.get_auth()
+    auth = authorization.authorize()
 
     if command == "timeline":
         timeline = get_timeline(auth=auth)
