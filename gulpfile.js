@@ -9,7 +9,7 @@ var concat = require('gulp-concat');
 
 source = {
 	assignments: './units/**/lessons/**/assignments/*.md',
-	assets: './units/**/lessons/**/assignments/assets/*.{jpg,png}',
+	assets: './units/**/lessons/**/assignments/*.{jpg,png}',
 	intros: ['./intro.md', './units/**/intro.md', './units/**/lessons/**/intro.md']
 };
 
@@ -75,6 +75,10 @@ var rendererConfig = {
 		else if (level==2) {
 			tags = ['<header>', '</header>\n']
 		}
+		else if (level==5) {
+			tags = ['<time>', '</time>\n']
+		}
+		
 		
 		return tags[0] + text + tags[1];
 	},

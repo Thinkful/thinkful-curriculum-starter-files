@@ -15,6 +15,20 @@ concepts and goals for each lesson
 
 ## Unit 3 
 
+.format() instead of %s %
+
+unit 3 lesson 1 assignment 3 -- finish this. get starting point etc. for exercises."- Redo your pet table to use a foreign key to the breed table
+"???
+
+l3 -- intro: describe in brief what diff between orm, core and 
+   -- a1: starting point for db? sql code for iain gives ben his pets
+        - introduce properties
+        - overall it's awesome. lots of good ideas in there.
+
+   -- a2: clarify factory function pattern -- is object instantiation not this?
+
+unit 3 lesson 7 complete it?
+
 *   After done with u3 revisions, Iain to go through and add starting points  
 *   provide resource that introduces relational databases as such (need idea of pk, )
 *   http://zetcode.com/db/sqlite/tables/
