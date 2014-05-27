@@ -48,10 +48,8 @@ class PetApp(object):
         Session = sessionmaker(bind=engine)
         self._dbs = Session()
 
-    def __delete__(self):
-        self.clean_up()
-
     def clean_up(self):
+        "close our session"
         self._dbs.close()
 
     def search(self, field_args):
@@ -64,7 +62,7 @@ class PetApp(object):
         """
         filter_dict = self._fields_to_dict(field_args)
         pets = self._get_pets(filter_dict)
-        output = self._output_pet_list(pets)
+        output = self._search_output(pets)
 
         self.clean_up()
         return output

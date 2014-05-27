@@ -311,7 +311,43 @@ So we'll keep those as local variables for now (encapsulation again!)::
         Session = sessionmaker(bind=engine)
         self._dbs = Session()
 
-And now we'll make search do something::
+We'll also add a method to close down the session when we're done. 
+In normal use this would happen automatically when the script terminates
+as the session will be garbage collected (BEN do they know what this means),
+but we want to design our application for extensibility and it's quite
+likely that in testing we'll have extra instances hanging about, so we'll
+clean up after ourselves for good measure. We're going to make the 
+clean up method public because it's also possible that the app might get
+used in a context where an exception is caught by the calling code and
+the session should be closed even when an exception is raised. For example, 
+the calling code might need to do something like this ::
+
+    app = PetApp(db_url)
+    try:
+        app.search(args)
+    finally:
+        app.clean_up()
+
+In the above example, no matter what happens in our app, the session will
+get closed by the clean_up method. It's ok if this means that clean_up
+gets called twice though, SQLAlchemy doesn't mind if we try to close a 
+session that is already closed. So let's add that now. ::
+
+    def clean_up(self):
+        "close our session"
+        self._dbs.close()
+
+In our terminal application, we're imagining that the app object is 
+thrown away after use, but we generally want to plan for easy extensibility
+when we can. So what will happen if we've cleaned up, and we want to 
+run another search on the same app object? As it turns out, SQLAlchemy 
+is smart about this, closing a session doesn't delete the session, it just
+flushes it out, and prepares it for the next round of use, so we're ok 
+on that front. You can test this out by dropping into pdb after a clean_up
+call and using the session again. 
+
+Now that our session is ready for use, we'll make our search method
+do something::
 
     def search(self, field_args):
         """
@@ -326,6 +362,9 @@ And now we'll make search do something::
         pets = self._dbs.query(Pet).all()
         # some temporary string formatting
         output = "Pets: " + ", ".join( [pet.name for pet in pets] )
+
+        # we're done with our session so close it
+        self.clean_up()
         return output
 
 
@@ -641,6 +680,8 @@ call our output method at the end to format the strings::
         pets = self._get_pets(filter_dict)  # <-- doesn't exist yet!
         # return string output
         output = self._search_output(pets)
+        
+        self.clean_up()
         return pets
 
 So we need a way to get pets from a filter dict. We'll call this private
@@ -762,6 +803,8 @@ this ::
         self._dbs.commit()
         
         output = self._add_output(pet)
+        
+        self.clean_up()
         return output
 
 
@@ -792,6 +835,8 @@ candidate for a static or class method::
         new_pet = self._save_pet( fields )
         
         output = self._add_output(pet)
+        
+        self.clean_up()
         return output
 
 
@@ -894,6 +939,8 @@ own helper method as our indent level is getting pretty deep::
         
         pet = self._save_pet( fields )
         output = self._add_output(pet)
+        
+        self.clean_up()
         return output
 
 
@@ -956,6 +1003,8 @@ of retooling our database to deal with this, it will suffice::
         
         pet = self._save_pet( fields )
         output = self._add_output(pet)
+        
+        self.clean_up()
         return output
 
     def get_species(self, species_arg):
