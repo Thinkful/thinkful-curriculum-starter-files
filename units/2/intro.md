@@ -9,7 +9,7 @@ In this unit, you'll start to see the payoff of the hard work you put in Unit 1 
 
 The overall goal of this Unit is to give you your first taste of using Python to solve practical problems. Over the course of this unit you'll learn how to read and write data from spreadsheets. You'll also learn how to use Python to get data from third party APIs (which you can in turn supply to end users in spreadsheets). Finally, we'll introduce the idea of software testing, which is a must have for professional programmers and which allows you to write more maintainable software.
 
-**Goals**
+# Goals
 
 *   Gain experience writing software that solves real world problems
 *   Learn how to read and write to spreadsheets

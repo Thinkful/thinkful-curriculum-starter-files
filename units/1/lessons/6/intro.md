@@ -14,7 +14,6 @@ You'll read about object oriented programming in Python and complete some exerci
 
 In the final assignment in this lesson, you'll be asked to use object oriented programming to model a real world situation. You'll use your solution to the problem as a conversation piece with your mentor to begin thinking about what makes good software design.
 
-
 # Concepts
 
 -  classes
