@@ -146,7 +146,7 @@ class PetApp(object):
         return breed
 
 
-    def _get_shelter(self, shelter_arg):
+    def _get_shelter(self, shelter_name):
         """
         convert a shelter string to an instantiated shelter object
         - optionally creates a new shelter in the db if need be

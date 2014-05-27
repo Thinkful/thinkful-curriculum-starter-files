@@ -58,7 +58,7 @@ class Shelter(Base):
     phone = Column(Text)
 
     def __repr__(self):
-        return "%s:%s" % (self.name, self.species) 
+        return self.name
 
 
 
