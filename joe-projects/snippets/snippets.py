@@ -43,7 +43,7 @@ def make_parser():
     put_parser = subparsers.add_parser("put", help="Store a snippet")
     put_parser.add_argument("name", help="The name of the snippet")
     put_parser.add_argument("snippet", help="The snippet text")
-    put_parser.add_argument("filename", default="snippets.txt", nargs="?",
+    put_parser.add_argument("filename", default="snippets.csv", nargs="?",
                             help="The snippet filename")
     put_parser.set_defaults(command="put")
 
@@ -51,7 +51,7 @@ def make_parser():
     logging.debug("Constructing get subparser")
     get_parser = subparsers.add_parser("get", help="Retrieve a snippet")
     get_parser.add_argument("name", help="The name of the snippet")
-    get_parser.add_argument("filename", default="snippets.txt", nargs="?",
+    get_parser.add_argument("filename", default="snippets.csv", nargs="?",
                             help="The snippet filename")
     get_parser.set_defaults(command="get")
     return parser

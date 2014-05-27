@@ -1,0 +1,28 @@
+{
+  "name": "md2Curric",
+  "version": "0.0.0",
+  "description": "",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benjamin E White",
+  "license": "ISC",
+  "dependencies": {
+    "gulp-marked": "git://github.com/lmtm/gulp-marked.git#7590ad0fd"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "marked": "^0.3.2",
+    "gulp": "^3.6.2",
+    "gulp-util": "^2.2.14",
+    "gulp-flatten": "0.0.2",
+    "path": "^0.4.9",
+    "gulp-tap": "^0.1.1",
+    "gulp-concat": "^2.2.0",
+    "glob": "^3.2.9",
+    "jquery": "^2.1.1",
+    "cheerio": "^0.16.0",
+    "jsdom": "^0.10.5"
+  }
+}
