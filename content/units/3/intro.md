@@ -26,6 +26,7 @@ PostgreSQL, on the other hand, is an open-source, industrial strength, full feat
 This Unit consists of three lessons. First we'll install SQLite and work with it to learn the SQL language. In the second lesson, we'll learn how to use Python as a scripting language to interact with SQLite and with PostgreSQL databases. Finally, in the third lesson, we'll learn about a powerful database toolkit for Python called SQLAlchemy, and learn how to use its Object Relation Mapper (ORM). ORMs streamline the writing of database applications in Python and are often used as the glue layer between Python programming with objects and the SQL database layer. SQLAlchemy is the ORM we'll use in Unit 4 when we begin building web applications with Flask.
 
 # Goals
+
 *   Learn SQL basics 
 *   Learn how to use Python to interact with SQLite and PostgreSQL databases
 *   Learn about ORMs and how to use SQLAlchemy 
