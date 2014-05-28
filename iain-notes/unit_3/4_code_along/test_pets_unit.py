@@ -34,7 +34,8 @@ class PetAppUnitTests(unittest.TestCase):
             ]
         
         output = PetApp._search_output(mock_pets)
-        assert output
+        assert "Titchy" in output, "Titchy should be in the output"
+        assert "Ginger" in output, "Titchy should be in the output"
                 
                 
  
