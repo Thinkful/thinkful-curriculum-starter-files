@@ -7,7 +7,7 @@ First let's review the deliverables and think about what this might mean
 for our high level architecture and the steps we need to take.
 
 - The application is a command line app to search for pets or add
-  a pet to our pet database from a terminal
+  a pet to our pet database from a terminal.
 - Command line arguments will be a field list in this format: 
      name:Ginger breed:labrador_retreiver age:10 species:dog 
 - Searching for a pet will print out a list of pets matching the search terms
@@ -15,16 +15,17 @@ for our high level architecture and the steps we need to take.
 - When creating a new pet, values for breed, species and shelter
   should check for existing matching entries and use them if present,
   or create new ones if none exist.
-- The model should be stored in a separate file and imported
+- The model should be stored in a separate file and imported.
 - The application should be created as an object that
-  gets instantiated and then used from our __main__ function
+  gets instantiated and then used from our __main__ function.
 
-To start with, let's think about what we know immediately:
+To start with, let's think about what we know right away that 
+we need to do:
 
 - We need to create a new file with all the model definitions, which
-  will be imported from our main script file 
+  will be imported from our main script file.
 - We need to parse command line arguments. We can use argparse.
-- Our main file will contain an Application class that gets
+- Our main file will contain an application class that gets
   instantiated and used in the __main__ method.
 
 We can see that this means we have three broad divisions
@@ -34,12 +35,12 @@ application classs, and our main script.
 With regards to the model file, we can put the method for
 initializing the database (dropping and creating tables)
 in there. Let's add a main method to our model file so
-that if it's used as the main app (IE $ python pets_model.py )
+that if it's used as the main file (IE $ python pets_model.py )
 we create the tables. Of course this could be disastrous 
 if done by accident, so let's have a confirmation step in there
 too. 
 
-Here's my initial main method for the model file::
+Here's an initial main method for the model file::
 
     if __name__ == "__main__":
         # if run this model file as the main script
@@ -64,7 +65,7 @@ Exercise 1 - Model File
   model should look like.
 - Update the sample main method to ask the user for
   confirmation before tables are dropped.
-- Add the ability to pass in a db_url as a command line argument
+- Add the ability to pass in a db_url as a command line argument.
 - Use the model file to create your new database.
 - Take a look at your database in the psql terminal and try inserting some data.
 - If your model file is correct, you should get the same
@@ -86,10 +87,10 @@ import the entire app class from something else and use it:
 perhaps it might be used with an alternate user interface
 such as a GUI or web form. This is a "Good Thing" for 
 testing as it means our tests can also import the app class without
-having to emulate arparse calls. This is a *decoupling* of two
+having to emulate argparse calls. This *decouples* two
 of our broad components: the application, and the command line interface.
 A good guideline is that anytime we can easily isolate dependencies,
-such as on argparse, to limited components of our application, 
+(such as our dependency on argparse) to limited components of our application, 
 we should do so.
 
 Ok, now we now that we'll have our main script get command line arguments,
@@ -97,8 +98,10 @@ and that it will instantiate an application class. We could pass the
 command line args into the app constructor, but that's not going
 to make it as easy to test as if we keep the methods of the application
 class more specific. The constructor should *make* the class, and
-then we can have some public methods that the script will call on
-the class. Sometimes we call the app to search and sometimes to add pets.
+then we can have some public methods that the calling script will call on
+the class. In this context, the scripts __main__ method becomes the *client*
+of the app class: it calls methods on the app class and gets return values from
+the app class. Sometimes we call the app to search and sometimes to add pets.
 So let's decide now that we'll have two public top level methods for
 our app class, one for searching and one for adding, and those
 will take as arguments a list of strings of our fields such as this::
@@ -106,10 +109,10 @@ will take as arguments a list of strings of our fields such as this::
     ['name:titch', 'age:10', 'species:cat' ...]
 
 Now what do we mean by "public methods"? Public means that the methods
-or attributes are meant to be called or used by external code, as in code 
+or attributes are meant to be called or used by client code, as in code 
 that is not contained in a method of our class. Conversely, private means
 that *only* code within our class should use the method or attribute.
-Now in actuality, Python is very permissive in this regard, the language
+In actuality, Python is very permissive in this regard; the language
 will not enforce privacy the way Java or C++ does. In those languages
 we can mark a method as private or public, and the compiler will enforce
 these rules: you really can't break them, you'll get an error.
@@ -121,19 +124,20 @@ It means that if we have other components that only
 interface with our class through public methods, then we know which
 parts of class we can redo at anytime without affecting *any*
 code outside of class, so long as the interfaces of our
-public methods are maintained: IE they must accept the same arguments
+public methods are maintained: i.e. they must accept the same arguments
 and return the same values.  This principle is called encapsulation, and
 is an important part of good object oriented design.
 
 In Python, a commonly used convention is to 
 preface our internal private methods and attributes with an underscore to indicate
-that they should be "considered private". This gives us a nice visual 
+that they should be "considered private". This gives us a clear visual 
 indicator that if we are calling or using those from outside our class, something
 is wrong. So we'll name our top level methods "search" and "add_pet".
 
 Another good convention that goes in hand with this is to give our
 public methods detailed doc strings indicating what they expect
-in arguments ("preconditions") and what they will return or do 
+in arguments and any other expectations that must be fulfilled for 
+them to work ("preconditions") and what they will return or do 
 ("postconditions"). This describes our public interface, and once
 we've got that figured out, we should nail it down and keep it still.
 This process is sometimes called "freezing the API". Once that has
@@ -141,29 +145,35 @@ happened, we know external components can use our object freely
 without fear that we might break the application somehow in an internal
 change. 
 
-Now let's think about our app's lifecycle. At the end of the script,
+Let's think about our app's lifecycle. At the end of the script,
 we terminate and the class will be automatically deleted from
-memory when our script ends. Are we safe
+memory when our script ends. (Python has what is called "automatic
+garbage collection". Once the interpreter detects that an object
+is out of scope and has no references left to it, it's memory is
+reclaimed by the operating system.) Are we safe
 in assuming one lifecycle of the app should only be using one
 database? Sounds like it. Is the database integral to the app?
 Yes, it can't do anything without it. So that sounds like
 a good case for sending the db_url to the app constructor as an
 argument. We also know that we'll need an SQLAlchemy session object for working
 with the database, so we can have our constructor create the session.
-And we know that we definitely don't want external code, sometimes called "client code"
+And we know that we definitely don't want external client code
 to be reading or writing to this session object, so we'll name the
 session self._dbs as a hint that it should be private.
-Our constructor then has a specific job: get the
-object ready for interacting with the database. We'll make sure
-that's detailed in our docstring so users of our class now
+Our constructor then has a specific job: get the application
+object ready to go, which in our case means it's ready to
+interact with the database. We'll make sure
+that's detailed in our docstring so users of our class know
 how our object works.
 
 "Users of our class"? Another good rule of thumb when designing
 decoupled systems is to pretend you're working in a team. A good
-design will allow different people to work on different compoments
+design will allow different people to work on different components
 without everyone having to understand everything about every component.
 If they know the interface expectations of our class, they should be
-able to use it. Imagining this, we can see why documention for
+able to write client code that uses it. They shouldn't need to know
+about anything other than the public methods. 
+Imagining this, we can see why documention for
 the public interfaces is the most important.
 
 So we know we need:
@@ -175,12 +185,12 @@ So we know we need:
 Our deliverables also say that we'll be printing output.
 We could print directly from the pet app, however, it's going to
 be easier to use our PetApp class in our test suite if we're trying 
-to verify return values (returning a string) instead of side effects
-(printing to the console), so let's have our top level
+to verify return values (the app class returns a string) instead of side effects
+(the app class prints to the terminal), so let's have our top level
 'search' and 'add' method return strings and we'll print them
-from the main method. This also makes sense because if wanted 
-to give our PetApp a GUI or web interface, we wouldn't want it 
-to print. 
+from the main method. This also makes for good future proofing 
+because if wanted to give our PetApp a GUI or web interface,
+we wouldn't want it to print. 
 
 So now we have a good idea of the interface of our public methods:
 they will take string arguments of some kind, and return string 
@@ -188,8 +198,8 @@ output. Let's stub those out know and give them some docstrings.
 One point about the constructor: despite it's name being prefaced
 with two underscores, it's really part of our public interface,
 so it should get a detailed docstring too. 
-We'll make the components and get
-them to fake that they do the right thing just to get going::
+We'll make the components and get them to fake that they do the 
+right thing just to get going::
 
     # TODO: set up the logger
 
@@ -210,7 +220,6 @@ them to fake that they do the right thing just to get going::
         def search(self, field_list):
             """
             Search for pets from a list of search terms.
-            
             param field_list: a list of strings such as:
                 ['name:titchy','breed:tabby']
             returns: string output from the search with pet details.
@@ -224,7 +233,6 @@ them to fake that they do the right thing just to get going::
             Add a new pet to the database. If a breed, shelter,
             or species is specified, create new ones if they 
             don't already exist.
-            
             param field_list: a list of strings such as:
             side effects: creates a new pet, and possibly a new
                breed, species, and/or shelter.
@@ -240,7 +248,7 @@ them to fake that they do the right thing just to get going::
         # TODO get this from command line args
         field_list = ['name:titchy', 'age:10', 'species:cat']
         
-        # TODO get this from command line args
+        # TODO determine this from command line args
         operation = 'search' 
         # operation = 'add'
 
@@ -261,10 +269,10 @@ them to fake that they do the right thing just to get going::
 Exercise 2
 ----------
 - Update the __main__ method to use argparse to get the field arg
-  list from the command line
+  list from the command line.
 - Using argparse, have __main__ chose the operation: We'll call 
   the 'add' method if the user uses either '-a' or '--add' at the 
-  command line, or default to 'search'
+  command line, or default to 'search'.
 - Update __main__ so that the db_url can be either taken from
   command line flag ('-d') or read from an environment variable
   called 'DB_URL'. (Either is fine).
@@ -294,7 +302,7 @@ we've made a poor decision with regards to our interface.
 
 We've already established that the SQLAlchemy session will be 
 created by the constructor, so let's get that ready. We
-don't need to make the engine and Session maker attributes
+don't need to make the engine and Session maker be attributes
 of the class as we're pretty sure that other methods will
 only interact with the database through the session object.
 So we'll keep those as local variables for now (encapsulation again!)::
@@ -313,14 +321,14 @@ So we'll keep those as local variables for now (encapsulation again!)::
 
 We'll also add a method to close down the session when we're done. 
 In normal use this would happen automatically when the script terminates
-as the session will be garbage collected (BEN do they know what this means),
+as the session will be garbage collected 
 but we want to design our application for extensibility and it's quite
 likely that in testing we'll have extra instances hanging about, so we'll
 clean up after ourselves for good measure. We're going to make the 
 clean up method public because it's also possible that the app might get
-used in a context where an exception is caught by the calling code and
-the session should be closed even when an exception is raised. For example, 
-the calling code might need to do something like this ::
+used in a context where an exception is caught by the client code and
+the session needs to be closed properly even in this error scenario.
+For example, the client calling code might need to do something like this ::
 
     app = PetApp(db_url)
     try:
@@ -329,12 +337,10 @@ the calling code might need to do something like this ::
         app.clean_up()
 
 In the above example, no matter what happens in our app, the session will
-get closed by the clean_up method. It's ok if this means that clean_up
-gets called twice though, SQLAlchemy doesn't mind if we try to close a 
-session that is already closed. So let's add that now. ::
+get closed by the clean_up method. So let's add that now. ::
 
     def clean_up(self):
-        "close our session"
+        "close the db session"
         self._dbs.close()
 
 In our terminal application, we're imagining that the app object is 
@@ -347,7 +353,7 @@ on that front. You can test this out by dropping into pdb after a clean_up
 call and using the session again. 
 
 Now that our session is ready for use, we'll make our search method
-do something::
+do something similar to it's eventual goal. ::
 
     def search(self, field_args):
         """
@@ -368,14 +374,14 @@ do something::
         return output
 
 
-Now to get the above working, we'll need to import the model:
+To get the above working, we'll need to import the model:
 
 Exercise 3 - Hooking up SQLAlchemy
 ----------------------------------
 - Add imports to the top of our script, we need to import all
-  our model class from pets_model.py
+  our model class from pets_model.py.
 - Get it going to the point that a call to our script for searching
-  spits out our list of Pets, and test this in the terminal
+  returns a string list of Pets, and test this in the terminal.
 - Create a temporary version of the add_pet method too that adds
   a pet with hardcoded values to the database, ignoring the relations.
 
@@ -388,14 +394,14 @@ That said, when coming up with the broad breakdown into components, you'll
 frequently get it wrong the first time, so it's nice to be doing this
 when we have only small stub content in our methods.
 
-Assuming we're happy with evereything, from here on, we want to 
+Assuming we're happy with everything, from here on, we want to 
 keep things working and incrementally move from our temporary features 
 over to code that does the real work.
 
 It would be a good plan at this point to write some tests. However,
 testing applications that connect to databases is pretty complex so
-we're going defer covering that to the next assignment, and continue
-building our application.
+we're going defer covering that to the next assignment, the test code-along,
+and continue building our application.
 
 Implementing the Features
 -------------------------
@@ -411,7 +417,7 @@ Well, we know we'll need to:
 - Search for Pets.
 - Search for existing breeds, shelters, or species, creating
   them if need be.
-- Save a Pet somehow, maybe from a dictionary of values.
+- Save a Pet somehow, probably from a dictionary of values.
 - Create our final formatted string output from a list of Pets.
 - Create our final formatted string output after creating a Pet.
 
@@ -434,21 +440,23 @@ Duck typing comes from the expression "if it walks like a duck and
 quacks like a duck, it is a duck". Because Python is un-typed, we
 can assign any type of value to any variable. In typed languages 
 such as C++ or Java, if a variable is meant to store integers,
-it can only store integers (without trickery...). If Python were
+it can only store integers (without resorting to trickery). If Python were
 "strongly typed" we could only test our output routines by passing
-in actual lists of Pet objects. Because Python uses duck typing, 
+in lists of actual Pet objects. Because Python uses duck typing, 
 all we need to do is pass in objects that "quack like a duck". Or 
 rather, have values for the attributes we are *expecting* to be
-there for Pet objects. We don't *really* need
+there for Pet objects. We don't really need
 to pass it pet objects, just objects that satisfy
 our *interface requirements*. In our case, as we're just 
 printing out values that we get from pet.name, pet.age, pet.adopted,
 pet.shelter, pet.breed, and pet.species, that's all our objects need
-to satisfy. 
+to satisfy, so they can be anything that will give us values
+for those attributes.
+
 
 Testing with Mock Objects
 -------------------------
-For our tests, we can make fake pet objects with those values
+For our tests, we can make fake pet objects with those attributes 
 available, and in Python, this is really easy to do using dynamic keyword
 arguments::
 
@@ -487,9 +495,11 @@ we initialize them. To figure out if this is sufficient,
 we need to figure out what we're going to ask for. Uh-oh,
 what if we ask for *pet.breed.name*? Whenever we have nested
 attribute look up, things get trickier. A good rule of thumb
-is to always be extra careful anytime your client code is
+is to always be extra careful anytime your code is
 using a variable with more than one level of attribute look up,
-IE more than one dot! One approach is
+IE more than one dot! Always ask yourself if it's possible for 
+first lookup to return None, because if it is, then the second
+look up will result in an error. One approach is
 to improve our mocks so this will work by nesting mocks::
 
     # assuming both the Mock class and MockPet class are defined
@@ -549,7 +559,7 @@ We could just leave things as they are and decide that all instantiations
 need a valid database.  This is reasonable, but means it's harder to write
 *true* unit tests.  Everything will wind up also being an *integration* or
 *functional* test, because we'll need to integrate with a database. This
-is going to slow down our tests and make them harder to write though.
+is going to slow down our tests and make them harder to write.
 
 Another approach is to compose our app differently
 so that it's easier to instantiate partial versions of the app. For
@@ -565,19 +575,21 @@ discreet component objects and some master system would create them and
 lash everything together. However, for our little app, this will be overkill,
 we would wind up with a lot more classes and files, and we'd need to 
 use a dependency injection master system, so we won't do that.
+(BEN: maybe that little tangent should be nuked? Was thinking that if
+students might also be taking the Angular course it could be good)
 
 A third approach is to alter our app so that if we try to instantiate
 it without a db_url, it gets created but skips connecting to the database,
 allowing us to at least test methods that don't require the database.
 The problem with this is that we wind up with code in our app who's
-*only purpose* is to behave differently for testing. Sometimes this
+only purpose is to behave *differently for testing*. Sometimes this
 is necessary and justifies itself, but we want to avoid that situation
 if at all possible. A good design should allow us to test the app
-and have it run *exactly* as it will in production.
+and have it run exactly as it will in production.
 
 A final option, and the one we're going to use, is to change our method
 so that it doesn't even need a reference to self, and can thus
-be tested *without* ever instantiating our application class.
+be tested without actually instantiating our application class.
 
 Static and Class Methods:
 -------------------------
@@ -601,9 +613,10 @@ the paramater list ::
 It's now basically just a normal function that happens to have it's 
 code inside our class. This is sometimes referred to as using the class
 for "namespacing", because our method is named "Pet.search_output" instead
-of "search_output".  Now if our method needed to use other helper methods
-from the class, we could alternately make it a **class method**, where we 
-replace self with a reference to the class ::
+of "search_output", but other than that, it's just a function.
+Now if our method needed to use other helper methods
+from the class (but no instance variables), we could alternately make it a
+**class method**, where we replace self with a reference to the class ::
 
     @classmethod
     def _search_output(cls, pets):
@@ -624,7 +637,7 @@ In both cases, they can now be called from the class name::
     output = PetApp._search_output(mock_pets)
 
 One of the neat features of class and static methods is that they can still
-be called from instances, so if you aren't using a reference to self in
+be called from instances as well, so if you aren't using a reference to self in
 your method body, there's really no penalty for using a static or class method::
 
     # we can still do this even though search_output is a class method 
@@ -761,7 +774,6 @@ Exercise 5:
   sure to normalize the breed name before we filter.
 - Add a filter clause for species. Test it out with the terminal.
 
-
 Adding A Pet
 ------------
 Now we can move on to adding the pet. Looking at this closely, we
@@ -875,17 +887,17 @@ Doing this will really help us see how our branching is looking and
 means we'll be more likely to lay it out properly. Next we should
 ask how we're using shelter when we create the pet. We can either
 use an instantiated shelter object and write it to pet.shelter or 
-we can use a shelter id and write it to pet.shelter_id. Looking at
+we can use a shelter id and write it to pet.shelter_id. (If this
+statement is confusing to you, review the mapper section in the
+SQLAlchemy assignment!) Looking at
 our pseudocode, we see we're going to have to query for shelter objects
 anyway. And looking at our pet saving helper, we see we are writing
-key value pairs from the fields dict to the pet object, so it seems
+key-value pairs from the fields dict to the pet object, so it seems
 like getting a shelter object and writing to pet.shelter will be easiest.
 It also will mean that if we're making a new shelter, we won't have 
 to run an intermediate database commit just to get the shelter id.
 
 So now we start turning our pseudocode into real code ::
-
-TODO: check that first is the right method to use here:
 
     def add_pet(self, field_args):
         ...
@@ -896,7 +908,8 @@ TODO: check that first is the right method to use here:
             # check for shelter in database
             shelter = self._dbs.query(Shelter).filter(
               Shelter.name==fields['shelter'] ).first()
-            # if found
+            # if no shelter found, shelter will be None
+            # check if we found one
             if shelter:    
                 # use this shelter
                 fields['shelter'] = shelter
@@ -944,7 +957,7 @@ own helper method as our indent level is getting pretty deep::
         return output
 
 
-    def get_shelter(self, shelter_arg):
+    def _get_shelter(self, shelter_name):
         """
         convert a shelter string to an instantiated shelter object
         - optionally creates a new shelter in the db if need be
@@ -960,7 +973,7 @@ own helper method as our indent level is getting pretty deep::
 
 Now we have a helper with a very specific job, and when it comes time
 to write database tests, it will be easier to test. And our add_pet
-method is nice and succint again.
+method is smaller again.
 
 We'll repeat this process for Species and Breed. Note that there 
 is some additional complexity with breed because we can't make a
@@ -970,7 +983,7 @@ into our breed helper.
 
 Exercise 6
 ----------
-- Go through the above to make sure your clear on how it all works.
+- Go through the above to make sure you're clear on how it all works.
 - Repeat this process for breed and species, then compare to our version
   once you've got your own.
 
@@ -1007,7 +1020,7 @@ of retooling our database to deal with this, it will suffice::
         self.clean_up()
         return output
 
-    def get_species(self, species_arg):
+    def _get_species(self, species_arg):
         """
         convert a species string to an instantiated species object
         - optionally creates a new species in the db if need be
@@ -1020,7 +1033,7 @@ of retooling our database to deal with this, it will suffice::
         return species
 
 
-    def get_breed(self, breed_arg, species=None):
+    def _get_breed(self, breed_arg, species=None):
         """
         convert a breed string to an instantiated breed object
         takes an optional species param
@@ -1036,20 +1049,21 @@ of retooling our database to deal with this, it will suffice::
         return breed
 
 
-    def get_shelter(self, shelter_arg):
+    def _get_shelter(self, shelter_name):
         """
         convert a shelter string to an instantiated shelter object
         - optionally creates a new shelter in the db if need be
         """
-        # we use the shelter name as is, no normalizing
+        # check for existing shelter by this name
         shelter = self._dbs.query(Shelter).filter(
             Shelter.name==shelter_name).first()
+        # if none found, create new shelter
         if not shelter:
             shelter = Shelter(name=shelter_name)
             self._dbs.add(shelter)
         return shelter
 
-
+ 
 Conclusion
 ----------
 Our pet script is now complete. We can add pets or search for pets,

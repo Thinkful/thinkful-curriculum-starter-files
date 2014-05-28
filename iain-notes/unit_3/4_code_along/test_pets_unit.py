@@ -33,7 +33,7 @@ class PetAppUnitTests(unittest.TestCase):
                 shelter=Mock( name='BCSPCA' ) )
             ]
         
-        output = PetApp.search_output(mock_pets)
+        output = PetApp._search_output(mock_pets)
         assert output
                 
                 

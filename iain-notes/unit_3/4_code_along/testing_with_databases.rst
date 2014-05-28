@@ -25,36 +25,42 @@ Design for Testability
 When we are designing our software, we should think about how we're going
 to be able to test it. Usually we want to have a method do
 *one* thing. We know we've done this well if we can give the method a 
-doctstring clearly stating the one thing it does. If a method returns a value,
+docstring clearly stating the one thing it does. If a method returns a value,
 writes to an object's state, and persists to the database, we have too much 
 to verify in a test and we should consider breaking this up into multiple methods.
+
 A good guideline is to keep reads and writes to "self" in one method, while some
-other methods are purely functional (no side effects) and others handle db persistence. 
+other methods are purely functional (no side effects) and others handle DB persistence. 
 If it makes sense to calculate more than one value at a time in a method, 
 we can either return an object that contains the various values or we can 
 use Python's automatic tuple unpacking to return multiple values.  
 
 Here is an example of method doing too many types of things to make 
 it easy to test. We have calculations, reads and writes to self, and
-persistence to the DB all in the same place.
+persistence to the DB all in the same place ::
 
 
     # a method of our shopping app
     def do_transaction(self, item_list):
         "calculate the shopping cart total, store on self, save in db"
+        
         # these calculations are writing to the app attributes
         self.subtotal = sum( [item.price for item in item_list ] )
+        
         if self.shopper.is_taxable():
             self.tax_total = sum( [item.price * item.tax for item in item_list] )
         else:
             self.tax_total = 0
         self.total = self.subtotal + self.tax_total
+        
         # persist the total on the transaction
         transaction = Transaction(self.shopper, self.subtotal, self.tax_total,
             self.total)
         self.db_session.add(transaction).commit()
+        
         # now return our transaction
         return transaction
+
     
 A test for this is going to have to do too many different kinds of assertions,
 and is going to require checking return values, application state, *and* database
@@ -78,7 +84,7 @@ method has a more specific role and is easier to test.
 
 
     # purely functional method that calculates and returns something.
-    # Note his thas no side effects!
+    # Note this thas no side effects!
     def calculate_totals(item_list, taxable):
         """
         calculate totals from item list and taxable flag
@@ -94,7 +100,7 @@ method has a more specific role and is easier to test.
 
 
     # method that *only* handles persisting a transaction
-    # our SQLAlchemy specific code is kept all here
+    # our SQLAlchemy specific code is all kept here
     def create_transaction(self, shopper, subtotal, tax_total, total):
         "create and return a database transaction record"        
 
@@ -130,7 +136,7 @@ break it up is to ask yourself these questions:
   a handful of smaller methods?"
 
 - "Could I move some of this into a method that is purely functional,
-  in that it returns values and doens't read or write to 'self' or leave 
+  in that it returns values and doesn't read or write to 'self' or leave 
   any side effects?"
 
 - "Could I move some of this into a method so that only one small 
@@ -147,11 +153,11 @@ Tests should be easy to read
 ----------------------------
 A thorough test suite also acts as a kind of documentation for our application.
 if the test suite infrastructure is written correctly, we ought to be able to tell
-at a glance what the test is doing and what it is testing. tests should have names
+at a glance what the test is doing and what it is testing. Tests should have names
 and doc strings that indicate what they are expecting, variable names should indicate
 at a glance what they hold, and the messages used 
 for assertions should clearly state what was expected and why it failed.
-test runners have switches to print out the doc strings as tests run, so 
+Test runners have switches to print out the docstrings as tests run, so 
 we can use these to keep track of what's working and what isn't: ::
 
     test_new_cat_defaults_alive(self):
@@ -159,7 +165,7 @@ we can use these to keep track of what's working and what isn't: ::
         # preconditions: 
         # a dict with args comes from somewhere
         cat_values = dict(name='fifi', age=12)
-        # we have an app (this might be in the setup routine)
+        # get our app 
         app = app()
 
         # EXECUTE the SUT
@@ -182,21 +188,17 @@ assert on variables that are pulled out from the database after the SUT has
 been executed, and we should make sure our assertion strings clearly indicated
 what was expected and what we got instead if the assertion fails. 
 
-TODO: show sample for a test like the above output
-
 
 Tests Should Be Fast To Write
 -----------------------------
 This is really the biggy. If it's hard to write a new test, it won't happen enough.
 Testing is a situation where we will use as much reusable code as we can in order
 to cut down how much we need to type for each test. Investing
-the time to build helpful base classes and mixins (BEN: do they know what a mixin is?)
-to make tests as concise as possible is always worth the time. We'll group tests 
+the time to build helpful base classes to make tests as concise as possible is 
+almost always worth the time. We'll group tests 
 into test classes such that pre and post test infrastracture can be repeated in generic
-setup and teardown methods. We'll be looking further in the next document at how this
-can be achieved with a reusable test scaffold.
-
-TODO: insert examples here?
+setup and teardown methods. We'll be looking at this in detail in the test 
+code-along as we make a resuable test scaffold with helper classes. 
 
 
 Tests Should Not Depend on Each Other (No Fragile Tests)
@@ -204,16 +206,15 @@ Tests Should Not Depend on Each Other (No Fragile Tests)
 It should never matter what order we run tests
 in, and we ought to be able to run any test in isolation. 
 If a test depends on the postcondition of a previous test, it's called a 
-"Fragile Test", and we can't run it in by itself. Worse, some tests could
-depend on the result of a previous test and only pass if run in a specific order.
+"Fragile Test", and we can't run it by itself. Worse, some tests could
+depend on the result of a previous test and only pass if our tests are run in a specific order.
 With database applications, this means we need to invest
-the time in setting up a database setup and seeding routine so that 
-each test gets a fresh reliable precondition database. This might
+the time in creating database setup and seeding routines so that 
+each test gets a fresh, reliable, precondition database. This might
 involve dropping all the tables and recreating them, or just emptying
 all the tables and refilling with our precondition data. 
-We'll be building helper methods
-to run in our test suites **setUp** and **tearDown** methods to make sure 
-that any test can run anytime.
+We'll be building helper methods to run in our test suites **setUp** 
+and **tearDown** methods to make sure that any test can run anytime.
 
 
 Tests Should (Usually) Test One Thing At A Time
@@ -226,7 +227,7 @@ assertions along the way as we want to fail as close to our error as possible.
 But in general, when you think something could be two smaller tests instead of
 one longer one, choose the smaller tests.
 
-Ideally, our test has one (or very few) assert statements. One technique that
+Ideally, our test has one or only a few assert statements. One technique that
 can help with this is to create classes for *Expecteds*. An expected is a helper
 class that allows you to verify a number of conditions in one go. Often we'll have
 a number of conditions that we need to verify over and over in many tests. Taking
@@ -262,11 +263,11 @@ of a test with and without an Expected helper class ::
         # execute SUT, expected.get_values returns us a dict
         app.save_cat( expected_cat.get_values() )
 
-        # verify 
-        titchy = self.confirm.query(Cat).filter_by(name='Titchy')
+        # get the new pet
+        new_pet = self.confirm.query(Cat).filter_by(name='Titchy')
 
         # verify each field using the verify helper of the expected 
-        assert expected_cat.verify( titchy )
+        assert expected_cat.verify( new_pet )
 
 
 You can see that if we are going to be testing and verifying cats a lot
@@ -274,7 +275,8 @@ in our application, that creating this ExpectedCat class can really cut
 down on the typing in each test. We can be very specific and thorough
 in the "verify" method of ExpectedCat, and know that in one line
 we'll get everything verified in every test. We can make sure the 
-expected class even checks for valid types or ranges of values.
+expected class even checks for valid types or ranges of values. We'll
+build an expected class in the test-code-along.
 
 
 Testing Should Require No Additional Steps
@@ -284,7 +286,7 @@ to just "keep it simple" by having an SQL file with your preconditition database
 filling a database from it manually, and running your test. This extra step and 
 file doesn't seem too onerous at the beginning, but as tests diverge and need
 very different precondition databases, this requires extra time, is error prone,
-and results in too many extra files. Any extra hassle means tests get
+and results in too many extra files to keep track of. Any extra hassle means tests get
 written less and run less. A well implemented test suite should require only 
 one step: firing the test runner. It's always worth the extra time to figure out
 how your test runner will take care of database seeding. We'll be looking at how
@@ -308,7 +310,7 @@ database for a number of tests grouped together, with a setup routine that
 *puts* the database into the correct precondition state *without* having to drop
 and recreate all tables. This can dramatically speed up execution for tests that use large databases.
 If you are going this route, you'll know that you've done it correctly if your
-setup routine means that you can still run any test in isolation and do the tests
+setUp routine means that you can still run any test in isolation and do the tests
 in any order.
 
 Database tests can also be sped up by using an in-memory databases, which can be 
@@ -329,12 +331,12 @@ be possible to specify what database all the tests will use in one easily
 editable place. This can be accomplished
 with a configuration file used by all the tests, or by storing the database connection
 string in an environment variable that gets read by the test infrastructure.
-
+We'll be using an enviroment variable for our example.
 
 Now that we've reviewed these principles, we'll start working on our pet script
 as a code along together, discussing how we'll test it as we go. In a real 
 world situation you'll want to write tests for parts of the app as you go,
 but for the purpose of the code-along we'll do a bit more development of the
-application first.
+application first, and then revisit it in our testing code-along.
 
 

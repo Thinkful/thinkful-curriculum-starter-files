@@ -151,9 +151,10 @@ class PetApp(object):
         convert a shelter string to an instantiated shelter object
         - optionally creates a new shelter in the db if need be
         """
-        # we use the shelter name as is, no normalizing
+        # check for existing shelter by this name
         shelter = self._dbs.query(Shelter).filter(
             Shelter.name==shelter_name).first()
+        # if none found, create new shelter
         if not shelter:
             shelter = Shelter(name=shelter_name)
             self._dbs.add(shelter)
