@@ -22,9 +22,8 @@ unit 3 lesson 1 assignment 3 -- finish this. get starting point etc. for exercis
 
 l3 -- intro: describe in brief what diff between orm, core and 
    -- a1: starting point for db? sql code for iain gives ben his pets
-        - introduce properties
+        - introduce properties!
         - overall it's awesome. lots of good ideas in there.
-
    -- a2: clarify factory function pattern -- is object instantiation not this?
 
 unit 3 lesson 7 complete it?

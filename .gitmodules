@@ -1,0 +1,3 @@
+[submodule "lib/thinkDown"]
+	path = lib/thinkDown
+	url = git@github.com:Thinkful/thinkDown.git
