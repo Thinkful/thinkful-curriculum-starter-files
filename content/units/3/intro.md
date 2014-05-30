@@ -4,7 +4,6 @@ author: Iain Duncan
 type: intro
 time: TBD
  -->
-
 In this unit, we'll explore data persistence using [SQL](http://en.wikipedia.org/wiki/SQL) (structured query language) and relational databases and  relational databases management systems (RDBMS). A relational database is one in which data is represented in tables of columns and rows. If you've ever worked with spreadsheets, you already have a good mental model of what a relational database is. SQL is a language used for working with data held in RDBMS. RDBMS provide a way to flexibly and consistently represent structured data, and they make it possible for many users to simultaneously access a data store while maintaining data integrity. 
 
 Database *transactions* make it possible for us to group a set of operations together and ask the system to allow either all of them to succeed or prevent any from succeeding. The classic example of this is a banking system: many different users may be accessing the same account information at once, but 
@@ -23,13 +22,14 @@ In this Unit we will use two different SQL database systems: SQLite and PostgreS
 
 PostgreSQL, on the other hand, is an open-source, industrial strength, full featured database server. Along with MySQL, it's one of the most commonly used database layers for dynamic web applications.
 
-This Unit consists of three lessons. First we'll install SQLite and work with it to learn the SQL language. In the second lesson, we'll learn how to use Python as a scripting language to interact with SQLite and with PostgreSQL databases. Finally, in the third lesson, we'll learn about a powerful database toolkit for Python called SQLAlchemy, and learn how to use its Object Relation Mapper (ORM). ORMs streamline the writing of database applications in Python and are often used as the glue layer between Python programming with objects and the SQL database layer. SQLAlchemy is the ORM we'll use in Unit 4 when we begin building web applications with Flask.
+This Unit consists of four lessons. First we'll install SQLite and work with it to learn the SQL language. In the second lesson, we'll learn how to use Python as a scripting language to interact with SQLite and with PostgreSQL databases. In the third lesson, we'll get a crash course ona powerful database toolkit for Python called SQLAlchemy, and learn how to use its Object Relation Mapper (ORM). ORMs streamline the writing of database applications in Python and are often used as the glue layer between Python programming with objects and the SQL database layer. SQLAlchemy is the ORM we'll use in Unit 4 when we begin building web applications with Flask. Finally, in Lesson 4, we'll do an extended project that will reinforce what you learned about SQLAlchemy in Lesson 3, and introduce the idea of testing your database layer.
 
 # Goals
 
 *   Learn SQL basics 
 *   Learn how to use Python to interact with SQLite and PostgreSQL databases
 *   Learn about ORMs and how to use SQLAlchemy 
+*   Learn how to test your database layer
 
 
 

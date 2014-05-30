@@ -4,7 +4,6 @@ author: Iain Duncan
 type: intro
 time: TBD
  -->
-
 Now that you have used Python and the psycopg2 driver to communicate with your database we're ready to start working with [SQLAlchemy](http://www.sqlalchemy.org/), a toolkit that allows us to interact with a database in a more convenient and flexible manner and write more readable, database-backed code.  
 
 SQLAlchemy is a multi-level toolkit, consisting of three layers: the core, the expression language, and the Object Relation Mapper (ORM). We will principally be using the ORM, along with elements of the expression language, but we will also be using some parts from the core to manage connections and do the database housekeeping.
