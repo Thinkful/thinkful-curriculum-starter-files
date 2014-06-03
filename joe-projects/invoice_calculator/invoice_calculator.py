@@ -9,8 +9,18 @@ def divide_pay(amount, staff_hours):
 
     per_hour = amount / total_hours
 
+    staff_pay = {}
     for person in staff_hours:
         pay = staff_hours[person] * per_hour
+        staff_pay[person] = pay
+
+    return staff_pay
+
+def main():
+    staff_pay = divide_pay(360.0, {"Alice": 3.0, "Bob": 3.0, "Carol": 6.0})
+    for person, pay in staff_pay.iteritems():
         print "{} should be paid ${:.2f}".format(person, pay)
 
-divide_pay(360.0, {"Alice": 3.0, "Bob": 3.0, "Carol": 6.0})
+if __name__ == "__main__":
+    main()
+
