@@ -1,3 +1,19 @@
-Before we start learning about the details of different parts of the Python programming language, there are some higher level characteristics of the language that are good to understand. For this, we'd like you to read through the [General Introduction](http://interactivepython.org/runestone/static/thinkcspy/GeneralIntro/introduction.html) to the *How to Think Like a Computer Scientist* online course.
+To close out this lesson and demonstrate your mastery of function basics in Python, we'd like you to refactor your Fizz Buzz app to use functions. 
 
-This text will explain the difference between high- and low-level, and compiled and interpreted programming languages. You'll also learn about the two modes Python can be run in: the interactive console and program mode. 
+# Requirements
+
+- **Write two functions.** 
+    + Write one function that determines if one number is evenly divisible by another and returns true or false
+    + Write another function that prints out the number/fizz/buzz/fizzbuzz as appropriate while iterating over an upper limit. This function should call the first one to test for each case (divisible by 5, 3, 15, etc.).
+
+- **Provide a main routine.** Use `if __name__ == '__main__':` to run this function from the command line. For the main routine, you should use sys.argv to get user supplied upper limit.
+
+- **Provide default arguments.** Your fizz buzz function should provide a default value for the limit parameter.
+
+- **Use version control.** You can create a new git repo for this assignment or a new feature branch on your fizz buzz repo from the earlier assignment. We'll leave it upto you to decide. Either way, be sure to commit your file when you've completed this project and push it up to Github.
+
+- **Get feedback from your Mentor.** Share a link to the project with your mentor and be sure to get feedback at your next mentor session.
+
+# Discussion
+
+Once you've completed this project, feel free to take a look at this [sample solution](https://gist.github.com/benjaminEwhite/7028b3227f0886c308f5). Compare and contrast your solution. What do you like better about the sample? What do you like better about yours?

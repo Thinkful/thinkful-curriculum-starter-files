@@ -1,9 +1,6 @@
-1. Is Python a high- or low-level programming language? Explain what this distinction means.
-2. What’s the difference between an interpreted and compiled language? Which one is Python?
-3. Explain the two environments that Python code can be run in: shell mode vs. program mode.
-4. What’s the ending for Python program names? 
-5. What is a program?
-6. What is debugging? 
-7. What are syntax errors?
-8. What’s a runtime error?
-9. What’s a semantic error?
+1. What is an exception?
+2. What is an exception handler?
+3. How would you write a try/except block that catches an error where a program refers to a key that does not exist in a dictionary?
+4. How can you write a try/except block that catches multiple kinds of exceptions and responds differently to each one?
+5. What is the purpose of the *finally* keyword?
+6. What is the purpose of the *assert* statement, and what is an *assertion error*?

@@ -1,9 +1,10 @@
-In this lesson, we'll review the prerequisites you need to succeed in this course: HTML, CSS, Git/Github and command line basics. You'll complete a simple coding challenge that demonstrates your mastery of these requirements, and then we'll go on to learn about the high level goals and characterstics of the Python language, and do some drills to practice basic syntax for strings, numbers, and datetime objects.
+In the warmup for this course, you got experience with Python syntax and some of the basic data types. In this lesson, you'll round out your knowledge of Python's primary data types. You'll learn more about working with strings; you'll learn about the special data type `none`, which is for representing the absence of a value. We'll then focus on Python's objects for handling collections of things: lists, tuples, sets, and dictionaries. 
 
-The goal of this unit is to get you back into the programming mindset if you're not already there, and to ensure prerequisite knowledge that you need to have to succeed in this course. If you have made it through this unit by your start date, you'll be able to hit the ground running and rapidly make progress.
+The Python language fundamentals taught in this lesson are worth memorizing sooner rather than later. Until these are second nature, you'll struggle to be an efficient Python programmer. 
+
 
 # Goals
 
-*   Review and demonstrate mastery of HTML, CSS, Git, Github, and command line basics
-*   High level introduction to Python as a programming language
-*   Familiarity with numbers, strings, and date time objects in Python
+- Understand Python's basic data types
+- Learn more about string formatting
+- Learn how to represent and manipulate collections of things

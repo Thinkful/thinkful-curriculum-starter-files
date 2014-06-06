@@ -1,13 +1,15 @@
-To program in Python, you need to be able to do some basic things from the command line. There’s a ton of commands you can learn, but for the purposes of this course, you don’t need to be a pro. You do need know how to do things like creating, deleting, moving, and navigating between files and folders. In this assignment, we'll point you to some review materials to get you back up to speed on command line basics.  
+In the first lesson in this course, when you did the exercises on datetime objects, you briefly encountered an example of string formatting that looked like this:
 
-# Steps
+```python
+from datetime import datetime
+now = datetime.now()
+print '%s-%s-%s' % (now.year, now.month, now.day)
+```
 
-1.  **Fire up Your Command Line Utility:**  If you're on a Mac or Linux, you can use the preinstalled command line interface. If you're on Windows, you'll use Powershell.
-2.  **Work through the Flatiron School Tutorial on the Command Line:** Our friends at Flatiron School created a [great introductory tutorial](https://gist.github.com/aviflombaum/9d6f7448119bae3a24ee) that covers command line basics. Work through this tutorial if you need a refresher; it won't take long!
-3.  **Learn 2 More Commands:** In addition to the commands you learned in the Flatiron School tutorial, you need to know two more commands to get started: `mkdir` and `rm`. `mkdir` creates a new directory: try creating one using the command `mkdir name_of_directory`. When you do this, make sure you first `cd` into a "safe" directory where you won't delete any system files.
- 
-    `rm` is for deleting files and folders. If you want to delete a file, you have to supply the `-r` (for recursive) option with this command. Let's delete the directory we just created by running `rm -r fname_of_directory`. Remember that you can use tab after typing the first characters of the directory name to save time. 
+The print statement there would output something like `2014-5-13`. In this example, the three '%s' instances get substituted by string representations of the three items in the tuple that follows. 
 
-    With these two additional commands, you’ve got the basic commands that we need to know. 
+This is just one of example of string formatting, and Python offers a number of powerful methods that allow you to substitute in variable values into strings and format data into a particular string format. 
 
-###### **Warning**: When you delete a file in the command line, you should consider it gone forever. That bears repeating: Deleting a file in command line is permanent! As in, it doesn’t go into the Trash bin, where you can recover it. Do yourself a favor and take this lesson to heart now before you mistakenly delete an important file forever, perhaps just before a looming development deadline!
+String formatting is something you'll use again and again in your programs to do things like log information about what the program is doing and generate text based on data models. 
+
+In this assignment, we'd like you to learn more about string formatting so you'll recognize it when you see it, and be able to use it when you need it.  Carefully read through this [tutorial on the .format() method](http://ebeab.com/2012/10/10/python-string-format/), and make sure you understand the two different approaches to string formatting using `%` vs. `.format()`.

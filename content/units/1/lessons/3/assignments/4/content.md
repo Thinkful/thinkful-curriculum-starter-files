@@ -1,16 +1,7 @@
-To close out this review of prerequisites, you'll complete a simple front end basics coding challenge. You will need to write HTML and CSS that implements the following sketch:
+Earlier in this lesson, we briefly introduced the *dictionary* data type. We said that, like lists, dictionaries are mutable, which means you can alter them by adding or removing items after they've been created. We also said that dictionaries are comprised of *key value mappings*: if you reference a particular key in a dictionary, you can return its value.
 
-![challenge sketch](web-basics-challenge.png)
+In the next assignment, you'll get a chance to work through some drills to give you practice using lists and dictionaries. Before doing that, though, we'd like you to read up on dictionaries and get some useful background info.
 
-If you can code this simple sketch from scratch in an hour or less, you'll do well when we start working with templating and Bootstrap later in this course.
+Please read through [this tutorial](www.tutorialspoint.com/python/python_dictionary.htm) on dictionaries in Python, and make sure you understand how to create dictionaries and how to add, remove, and alter dictionary items. 
 
-# Project Requirements
-
-*   Your page must decently approximate the sketch above, and it should behave reasonably when users resize the browser.
-*   Each of the items in the top nav bar is a link. You don't need to create pages for each link, just a page for this sketch.
-*   The title and body field are required. You should enforce this using the HTML5 required attribute on these fields.
-*   The cat image has no functionality in the form, it's there just to test your HTML/CSS skills. 
-*   You should use Git and Github to save your app. When you've completed the challenge, please push your commit up to Github.com, create a GH-pages branch to host the page, and share a link to the repo and the GH page with your mentor, who will let you know if you've passed the challenge. If you need instructions on how to host static web pages using gh-pages branches, follow [this guide](https://pages.github.com/). To get the relevant instructions, select the "Project Site" and "Start from Scratch" options.
-*    The cat image asset is available here: 
-    
-    ![image of a cute little kitty cat](cats.jpg)
+###### In addition to the syntax `my_dict = {'a': 1}` that you'll learn in this tutorial, you can also create a dictionary using the following dictionary constructor method: `my_dict = dict(a=1)`. This syntax saves you from having to use quotation marks around your keys. You're free to use which ever one you prefer in our own code, but you should be able to recognize both when you see them.

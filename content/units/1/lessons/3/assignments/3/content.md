@@ -1,20 +1,5 @@
-Revision control is a critical concept and practice that allows developers to collaborate with one another and to manage changes to a code base over time. Git is the defacto standard for revision control these days. Git allows you to declare a given directory and set of directories and files as a repository, which can then be version controlled. GitHub -- a related but distinct, and often conflated technology -- is the most popular site for remotely hosting code and serves as a central hub for the open-source community. 
+In the first assignment in this lesson, we got a brief introduction to lists. You will use lists again and again in your Python programs, so it's critical you understand how they work and some of the peculiarities of working with them.
 
-In this course, we'll use Git and Github to manage coding up your projects. Although you are advised to learn all of the features offered by Git and Github if you plan to program professionally, to succeed in this course you only need to have a grasp of the basics. You should know how to:
+Watch the video below from Khan Academy, which introduces lists in Python. Pay special attention to the section that discusses making copies of lists. 
 
-*   Set up and configure Git on your computer
-*   clone and fork repos
-*   branch
-*   merge
-*   push and pull
-*   add files and commit changes
-*   switch between branches
-*   resolve merge conflicts
-
-# Resources
-
-If you need a refresher, we recommend the following resources for getting back up to speed on Git and Github:
-
-*   [Git Immersion](http://gitimmersion.com/)
-*   [TryGit at Codeschool](http://try.github.io/)
-*   [git - the simple guide](http://rogerdudler.github.io/git-guide/)
+<aframe src="http://www.youtube.com/embed/zEyEC34MY1A"></aframe>

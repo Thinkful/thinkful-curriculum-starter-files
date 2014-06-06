@@ -1,9 +1,11 @@
-In this lesson, we'll review the prerequisites you need to succeed in this course: HTML, CSS, Git/Github and command line basics. You'll complete a simple coding challenge that demonstrates your mastery of these requirements, and then we'll go on to learn about the high level goals and characterstics of the Python language, and do some drills to practice basic syntax for strings, numbers, and datetime objects.
+In this lesson, you’ll learn all about functions. Functions give you a way to group together and re-use pieces of code that accomplish a given task. You'll use functions in nearly every serious program you write, and they allow you to write reusable, clean, maintainable code.
 
-The goal of this unit is to get you back into the programming mindset if you're not already there, and to ensure prerequisite knowledge that you need to have to succeed in this course. If you have made it through this unit by your start date, you'll be able to hit the ground running and rapidly make progress.
+We've already encountered some of Python's built in functions earlier in this unit. You can also define custom functions in your Python programs - you'll learn how to do that in this lesson.
+
+We'll start off with a conceptual introduction to functions, then you'll complete some exercises over at Codecademy to get practice creating functions.
 
 # Goals
 
-*   Review and demonstrate mastery of HTML, CSS, Git, Github, and command line basics
-*   High level introduction to Python as a programming language
-*   Familiarity with numbers, strings, and date time objects in Python
+- Conceptual understanding of functions
+- Know how to write custom functions in Python
+- Be able to break a problem down into functions that can be used to solve it

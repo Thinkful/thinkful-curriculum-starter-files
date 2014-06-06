@@ -1,3 +1,79 @@
-Before we start learning about the details of different parts of the Python programming language, there are some higher level characteristics of the language that are good to understand. For this, we'd like you to read through the [General Introduction](http://interactivepython.org/runestone/static/thinkcspy/GeneralIntro/introduction.html) to the *How to Think Like a Computer Scientist* online course.
+Although we haven’t formally introduced functions yet, you’ve used them in several places, earlier in this unit. For instance, we've used raw_input(), len(), .format(), and several other built-in Python functions so far. 
 
-This text will explain the difference between high- and low-level, and compiled and interpreted programming languages. You'll also learn about the two modes Python can be run in: the interactive console and program mode. 
+We were able to use these functions without knowing anything about how they were implemented. All we needed to know was their *method signature*. *Method signature* refers to the arguments required by a function -- in other words, the stuff we need to put between the parentheses when the function is called. And herein lies the power of functions -- they allow you to create code that allow *callers* of the function (that is other code that calls the function) to supply inputs and get outputs from the function without having to know anything about how the function is implemented. This allows you to write what programmers call [*loosely coupled code*](http://en.wikipedia.org/wiki/Loose_coupling).
+
+# Creating Custom Functions
+
+At their simplest, functions provide a way of grouping together and naming a block of code that does something, supplying that code with arguments/parameters, and then doing something with those arguments/parameters.
+
+Here’s how you define a function:
+
+```python
+
+def subtractor(a, b): 
+   """I subtract b from a and return the result"""  
+   print "I'm a function. My name is {}".format(subtractor.__name__)
+   print "I'm about to subtract {} and {}\n\n".format(a,b)
+   return a - b  # i output a value by using the return statement
+
+
+if __name__ == '__main__':
+   subtractor(3, 2)
+```
+
+You can clone this code example [here](https://gist.github.com/65249517494c65de2c1a) or else copy and paste into a new file in your text editor. Run the function from the command line with `python function_demo.py`. 
+
+A few things to note about this function:
+
+-  To define a function, you use the `def` statement like in this example. `def` is followed by the name of your function, followed by a tuple of any arguments the function takes.
+-  This function’s name is subtractor - it takes two parameters: a and b.
+-  That triple quoted text on the second line of the function is called a docstring. These optionally appear as the first line after the def statement and are used to provide a short descriptive statement of what the function does. It’s considered good practice to provide a docstring for each function you write. This orients you or anyone else looking at the code, so they know what a function does without looking at its implementation. Docstrings also appear if you type help(my_function) from the Python interpreter.
+-  The first print statement of this function prints out the name of the function. It does this by using `.format()` and substituting in the value of the `.__name__` attribute of the function. For any given function, you can access it’s name with this attribute.
+-  This function has a return statement which outputs a value. 
+-  Check out that strange `if __name__ == '__main__':` code at the bottom of the program. `if __name__ == '__main__':` is how you define a routine to be executed when a Python script is run from the command line. In this case, we're telling Python to call our subtractor function with the arguments 3 and 2 if it gets called from the command line. Alternatively, we can open an interactive Python console and import the function and use it there.
+
+Now you know how to define a function. The next thing to know about functions is that just like strings, numbers, lists, and dictionaries, they can be assigned to variables. From the command line, navigate to the folder containing function_demo.py. Then start the interactive console by entering `python`. From inside the console, enter `from function_demo import subtractor`. Now we can access our subractor function inside our interactive console session. Next, enter `my_func = subtractor`. If you check the type of my_func, you'll see that it's a function object. You can call the function like this `my_func(3,2)` which would output 1. 
+
+###### If you want to assign a function to a variable, you must omit the parentheses. If you include the parentheses, you’ll actually call the function, instead of assigning it to a variable.
+
+In this first example, our function has a return statement and it takes arguments, but not all functions have to do this. Consider the following function, which only prints something:
+
+```python
+def print_function():
+   """ I'm also a function, but I don't take any parameters"""
+   print "I'm {}, and I'm printing now".format(print_function.__name__) 
+if __name__ == '__main__':
+   print_function()
+```
+
+# Functions Can Call other Functions
+
+It’s also possible for a function to call another function. If print_function and subtractor have been previously defined, you could define the following function:
+
+```python
+def function3(a=1, b=1): 
+  """ I'm a function that calls other functions """
+  print "I'm {} and I'm about to call subtractor function".format(function3.__name__)
+  total = subtractor(a,b)
+  print "I'm {} and I'm about to call print_function".format(function3.__name__)
+  print_function()
+  print "I'm {} and I'm about return total".format(function3.__name__)
+  return total
+  
+if __name__ == '__main__':
+  total = function3()
+  print "total is {}".format(total)
+```
+
+This function prints a message that it's about to call subtractor, and then it assigns a value to total by calling subtractor. It then prints a statement that it’s about to call print_function, then calls print_function. Finally, it returns total. 
+
+Note in this function, we’ve assigned *default values* for a and b with `(a=1, b=1)`. This means that if we call this function but do not supply parameters, a and b will both default to 1. This is a handy way Python lets us supply default values for function arguments.
+
+# Further Reading
+
+In this assignment we've just covered the basics of working with functions in Python. You will get a lot of mileage out of these basics, but as you progress as a Python programmer you'll definitely want to learn about more advanced aspects of functions in Python. The following is a list of concepts and resources you can look at in the future:
+
+-  [Argument Unpacking using *args and **kwargs](https://docs.python.org/2/tutorial/controlflow.html#arbitrary-argument-lists)
+-  [Recursion](https://www.khanacademy.org/science/computer-science/v/recursive-fibonacci-example)
+-  [Lambda (aka Anonymous) Functions](http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/)
+-  [Decorators and Closures](http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/)

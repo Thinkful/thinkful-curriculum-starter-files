@@ -1,3 +1,5 @@
-Before we start learning about the details of different parts of the Python programming language, there are some higher level characteristics of the language that are good to understand. For this, we'd like you to read through the [General Introduction](http://interactivepython.org/runestone/static/thinkcspy/GeneralIntro/introduction.html) to the *How to Think Like a Computer Scientist* online course.
+You've seen several examples of functions at this point. Now get some practice with writing and using functions. 
 
-This text will explain the difference between high- and low-level, and compiled and interpreted programming languages. You'll also learn about the two modes Python can be run in: the interactive console and program mode. 
+Do all 19 exercises from the [Python functions track](http://www.codecademy.com/courses/python-beginner-c7VZg/0/1) at Codecademy.
+
+Note that these exercises both create and import functions from existing modules. We'll discuss modules more in Unit 2 of this course.
