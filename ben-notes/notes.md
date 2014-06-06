@@ -7,6 +7,11 @@ concepts and goals for each lesson
 *   Must cover Python properties, and public vs. private in earlier units
 *   SA needs intro on matching db to domain model for init to work
 
+Unit 2 Lesson 3
+
+need comprehension checks throughout
+need pdb.settrace
+
 ## Unit 3 
 
 .format() instead of %s %
