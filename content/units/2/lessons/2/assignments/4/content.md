@@ -1,18 +1,5 @@
-<!-- 
-author: Joe Turner
-type: 3pc
-time: 45 minutes
-name: Introduction to OAuth
- -->
 In the previous assignment we saw how to access the GitHub API using a simple authentication method. But what happens when you want to let third party user access your data? Just handing over your username and password would be very insecure. The most widely used solution to this problem is OAuth. OAuth allows a third party to access a user's data in a secure way, without the third party having complete access to the user's account.
 
 Currently there are two versions of OAuth called, handily, OAuth 1.0 and OAuth 2.0. Both are quite widely used, and which version is superior is hotly contested (search for "OAuth 1.0 vs 2.0" if you are interested). In the next few lessons we will be focusing on OAuth 1.0, but you should be able to apply your understanding to OAuth 2.0 workflows without any problem.
 
 To help you understand what OAuth is all about and how it works read through [this guide to OAuth 1.0](http://hueniverse.com/oauth/).
-
-# Comprehension Check
-
-1. Why was OAuth invented, and what is it used for?
-2. What is the difference between the consumer/client secret, the request secret and the access secret?
-3. What do the terms two and three-legged mean in the context of an OAuth application?
-4. Can you describe a typical OAuth flow for a user allowing a third-party to access their data on a server?

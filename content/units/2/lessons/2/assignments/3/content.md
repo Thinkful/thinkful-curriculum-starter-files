@@ -1,10 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code along
-time: 60 minutes
-name: Using requests to query the GitHub API
- -->
-
 In this lesson we will be applying what you've learned in the previous two assignments to create an application that uses the GitHub API. The application will look at the programming languages which a user has worked with and work out what percentage of their code is written in each language.
 
 # Getting a list of repositories
@@ -173,4 +166,3 @@ We then loop through the sorted list, and calculate the percentage of the total 
 Now let's test out our completed app. Try running it with your GitHub username. You should see a list of the languages you've used, along with what percentage of your code is written in it. Also try running it over your mentor's GitHub account to see how you compare.
 
 Don't forget to commit and push your code up to GitHub. That should help to increase the Python percentage!
-

@@ -1,10 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code from scratch
-time: 180 minutes
-name: Twitter Extension: Wrap the Twitter API
- -->
-
 In this assignment you are going to extend the authentication code to make a full-blown Twitter client. Take a look through the [API documentation](https://dev.twitter.com/docs/api/1.1) and pick two or three of features that you would like to support, for example posting tweets or listing the users you follow.  Then try to expand the *tweetful.py* file to add:
 
 * An argparse CLI interface to your client
@@ -25,4 +18,3 @@ When the project is complete, don't forget to push your code up to GitHub and di
 # Optional extension task
 
 Try creating a simple client or tool for working with another OAuth API.
-

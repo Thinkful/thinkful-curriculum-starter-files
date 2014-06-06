@@ -1,19 +1,3 @@
-<!-- 
-author: Joe Turner
-type: 3pc
-time: 30 minutes
-name: Read Up on HTTP and REST
- -->
-
 In the next few assignments we will be looking at using Python to access resources on the web. Almost all communication over the web happens using the HTTP protocol. So before we get started looking at some code, it makes sense to have an understanding of what the protocol looks like, and how it works.
 
 Carefully read through[part 1](http://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-1--net-31177) and [part 2](http://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-2--net-31155) of this tutorial to learn about what makes up an HTTP request, and what response you can expect.
-
-# Comprehension Check
-
-1. What do we mean when we say that HTTP is a client-server protocol?
-2. Can you describe the five parts which make up a URL?
-3. What are the four most common HTTP verbs, and how are they used?
-4. Where would you find the HTTP status code? 
-5. What is the difference between 1xx, 2xx, 3xx, 4xx and 5xx status codes?
-6. How does the HTTP protocol allow us to authenticate and identify users?

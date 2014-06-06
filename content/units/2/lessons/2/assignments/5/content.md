@@ -1,9 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code along
-time: 60 minutes
-name: Sourcing the Twitter API
- -->
 In the previous assignment we learned about how OAuth works. So now let's try to implement it in practice. We are going to be building a command-line Twitter client that uses OAuth to authenticate with the Twitter API.
 
 # Registering an app
@@ -261,5 +255,3 @@ def authorize():
 First we try to access the stored credentials. If this throws an `IOError` indicating that the file does not exist, we try to authenticate as before. If we authenticate correctly then we call the `store_credentials` method to save the access token and secret so we can use them next time. Finally we return the `OAuth1` object as usual.
 
 Try running your code a couple of times. The first time you will need to manually authenticate, but the second time it should use our saved credentials.
-
-

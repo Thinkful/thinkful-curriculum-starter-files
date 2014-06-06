@@ -1,0 +1,3 @@
+Files are fundamental to the way we use computers, allowing us to store and access data in a simple consistent way. It seems like it would be pretty handy to be able to work with files in Python then right? In this assignment you'll learn how to read and write to files in your Python programs, and then later in this lesson, we'll use this knowledge to build our code snippets app.
+
+Work through [these exercises in Codecademy](http://www.codecademy.com/courses/python-intermediate-en-OGNHh/0/1?curriculum_id=4f89dab3d788890003000096) to learn how to read and write files in Python.

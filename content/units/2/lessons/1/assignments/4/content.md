@@ -1,9 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code along
-time: 60 minutes
-name: Building a command line snippets app
- -->
 In the next two assignments we are going to code a simple command line application that will build on your knowledge of the `csv` and the `argparse` libraries. The application will allow you to store and retrieve snippets of text. You can use this to save notes about how Python works as you continue to work through the course.
 
 # Using logging
@@ -277,5 +271,4 @@ put(**arguments)
 
 Try running you app and using it to add items to a CSV file. Open up the file to make sure that the items are being added correctly.  If so, congratulations - that's the first part of our app finished. 
 
-You'll be on your own to add to this code base in the next assignment, so be sure to commit your changes. 
-
+You'll be on your own to add to this code base in the next assignment, so be sure to commit your changes.

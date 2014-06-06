@@ -1,9 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code from scratch
-time: 90 minutes
-name: Adding a retrieval command to the snippets app
- -->
 In the previous assignment we started to create a more complex command line application using the `argparse` and `csv` libraries. Now it's your turn to extend the application so it can retrieve snippets as well as store them. You can either continue to work from your existing code, or use [this version of the code](https://gist.github.com/oampo/2e450ecc138a2a7dee55) as a starting point for the assignment.
 
 When you have completed the assignment you should be able to do something like this:
@@ -42,4 +36,3 @@ When you've completed this project, be sure to push your work up to a remote Git
 
 * Add a search command that looks through your snippets and find the ones containing a certain string.
 * Add an update command or modify the put command to allow you to update an existing snippet.
-
