@@ -1,0 +1,7 @@
+In this lesson we will be using your API building skills to create the backend for a full-page web application.  The app we are going to make is an automatic chord analyser, allowing you to upload audio files and view the sequence of chords that make up the music.
+
+**Goals**
+
+*   a
+*   b
+
