@@ -1,10 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code along
-time: 60 minutes
-name: Debugging using pdb
- -->
-
 As hard as we try, the code that we write is never perfect. Often we make small mistakes which will either stop our code from running or cause it to produce the wrong result. When this happens we have to work through the code to track down the problem and fix it; this process is known as *debugging*.
 
 You have probably already learned some debugging skills. For example you might have added a `print` statement to some code to try to find out what value a variable held.  In this assignment we will be introducing `pdb`, a new tool which we can use to help us out whilst debugging code.
@@ -135,12 +128,3 @@ Pretty much everything looks right here except for the pay.  And when we double 
 Try changing the code so that `pay = staff_hours[person] * per_hour`.  Then try running the code again.  You should see that we now calculate the correct values.
 
 As we have seen, pdb is a very powerful tool for inspecting and navigating through code as it runs.  We have gone through the basics of using pdb, but it has a number of additional commands and capabilities which are beyond the scope of this assignment.  These may come in handy when you have a more complex piece of code which you need to debug.  Have a read through the [command reference](https://docs.python.org/2/library/pdb.html#debugger-commands) to see some more of what pdb is capable of.
-
-# Comprehension Questions
-
-1. What do we mean when we say that we are single-stepping in pdb?
-2. What is the difference between the `next` command and the `step` command?
-3. What is a breakpoint, and how do you create one in in `pdb`?
-4. What does the `continue` command do?
-
-

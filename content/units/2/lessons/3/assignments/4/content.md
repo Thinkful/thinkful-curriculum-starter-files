@@ -1,11 +1,4 @@
-<!-- 
-author: Joe Turner
-type: code along
-time: 60 minutes
-name: Writing tests for a simple application
- -->
-
-In the previous assignment you saw how to write unit tests in Python using the `unittest` module.  Now let's try to put this into practice.  We are going to continue to work on the invoice divider from assignment 1, adding tests to make sure that our code is working correctly.  You can either work from your existing code, or use the code in [this gist](https://gist.github.com/oampo/547573ecd8d48a56ffd4) as a starting point.
+In the previous assignment you saw how to write unit tests in Python using the `unittest` module.  Now let's try to put this into practice. We are going to continue to work on the invoice divider from assignment 1, adding tests to make sure that our code is working correctly.  You can either work from your existing code, or use the code in [this gist](https://gist.github.com/oampo/547573ecd8d48a56ffd4) as a starting point.
 
 # Creating the test class
 
@@ -123,4 +116,3 @@ Try running your tests.  Hopefully they should all still pass, with our ValueErr
 In this assignment we've seen how to test the main functionality of some code, and added a series of further tests making sure that the edge cases are covered.
 
 Have a think about whether we've covered all of the edge cases which could arise.  Can you think of any more tests which we could add to help make our code more robust?  Remember that as a developer you will have to both write and maintain your tests, so you will need to strike a balance over the number of tests you have for each unit of code.  Be sure to discuss this with your mentor, and add any further tests which you decide are appropriate.
-

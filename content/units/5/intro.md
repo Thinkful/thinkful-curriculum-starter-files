@@ -1,14 +1,15 @@
-[//]: <> (author: Benjamin White)
-[//]: <> (type: introduction)
-
-# 
-introductory text
-
-**Goals**
-
-*	a
-*	b
+<!-- 
+author: Benjamin White
+type: introduction
+name: Flask as an API & Course Capstone
+ -->
 
 
-**Skills**
+# Goals
+
+*	
+*	
+
+
+# Skills
 

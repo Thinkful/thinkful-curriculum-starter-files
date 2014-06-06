@@ -1,10 +1,3 @@
-<!-- 
-author: Joe Turner
-type: code yourself
-time: 90 minutes
-name: A tested discount calculator
- -->
-
 Now that you have seen how to write tests for your code it's time to try writing some well-tested code from scratch.  In this assignment you are going to be creating a simple function to calculate the discount on an item from a shopping cart.
 
 Create a new project called *discount_calculator*.  Then in a file called *discount_calculator.py* write a function called `calculate_discount` which takes three arguments:
@@ -18,4 +11,3 @@ To see how this should work let's take `discount_calculator(100, 10, 30)` as an 
 In a file called *test_discount_calculator.py* you should create tests to make sure that your function works correctly.  In particular pay attention to the edge cases.  For example, the final cost should never go below zero even if the discounts are greater than the item cost.
 
 Don't forget to commit your code regularly to a git repository as you work on the assignment.  When you are done, push your code up to GitHub and make sure to discuss it with your mentor.
-
