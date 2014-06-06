@@ -1,0 +1,31 @@
+One critical relational database topic that *LSQLTHW* did not touch upon is **foreign key constraints** and **cascades**. Before defining those terms, let's consider some tough questions about the databases we've worked with so far. Remember, our database contains pets that can refer to breeds, and breeds that can refer to species. We also have a table of pet/owner relationships. Given these relationships:
+
+*   What happens to the pet_person table if we delete a person?
+*   What happens to our pet and breed tables if we delete a breed?
+*   What *should* happen to our pet table if we delete a breed that has pets? Should this even be possible?
+*   What happens if we enter garbage integer data into any of our foreign key columns?
+ 
+The issues are important to consider in designing a database. At present, if we
+delete a pet who had one or more people, we'll have some nonsensical entries hanging around in our person_pet association table. Worse, if we delete a species, we'll have invalid entries in the breed table, where we'll
+have species_id columns referencing non-existing species entries. These are what we call **data consistency** problems. Data inconsistency can put our database in a state where it represents a nonsensical real world state (for instance a pet/owner relationship in which there is no pet!). These sorts of problems can be especially difficult to debug as our program may not have any *programming errors* per se, but the outcomes will be incorrect. 
+
+To solve these sorts of issues, database systems allow us to specify what are called **foreign key constraints**. We can tell the database that a foreign key column *must* refer to a valid related entry, or that certain operations should not be permitted, or that certain operations should automatically
+trigger other operations. 
+
+For example, we could specify a foreign key constraint that says that we can not delete a species entry if we have any rows in our breed table that still reference it. Or we could alternately specify that deleting a species entry automatically deletes all breeds referring to it. Or that breeds referring to a deleted species should have their foreign keys set to Null. 
+
+These sort of rules are referred to as the **cascade**. We specify
+how changes should *cascade* to their related dependent entries in other tables. And to do so, we need to spend some time thinking about what is logical for our specific data model. For example, sometimes it makes sense that a foreign key could be null, and other times that is obviously a mistake. If we add a pet shelter table to our database, and add a relationship between the pet table and the shelter table, it would make sense that:
+
+-   a shelter can have many pets
+-   a pet only comes from one shelter
+-   but a pet may also not come from any shelter, thus null is a possible valid value
+
+The syntax for specifying foreign key constraints in SQL can be a bit involved, and enabling foreign key constraints in sqlite requires some extra configuration, so we will not get into the details at this point. We will, however, return to constraints and cascades later in this unit when we start working with PostgreSQL. Even if we don't specify constraints at this time, it's important to understand the consequences of normalization when designing any system using a relational data model. 
+
+# Follow Up Exercises
+
+1. Read the [section on foreign key constraints](https://www.sqlite.org/foreignkeys.html#fk_basics) from the official SQLite docs.
+2. Read the [section on delete and update actions](https://www.sqlite.org/foreignkeys.html#fk_actions) from the officila SQLite docs.
+3. Add a shelter table to your pets database from the previous assignment. The shelter table should have values for name, address, phone number, and website.
+4. Update your pet table without recreating it to include a foreign key reference to the shelter each pet is at.
