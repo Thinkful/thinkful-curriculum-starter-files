@@ -1,3 +1,0 @@
-So far any testing of our code has been manual;  we have run the code with some input and checked that the result is correct.  As our code starts to grow more complex this will soon become less practical, and so we need to find ways to automate our testing and make it more thorough.  In the next few assignment we will be introducing *unit testing*, which is the most widely used style of automated software testing.  In unit testing we check that small sections of our code (known as *units*) are behaving correctly.
-
-To help you start to understand more about what unit testing is and why we do it, read [this introduction to unit testing](http://soundsoftware.ac.uk/unit-testing-why-bother).

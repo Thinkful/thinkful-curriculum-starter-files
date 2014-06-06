@@ -1,1 +1,0 @@
-Make sure you can explain what a list comprehension is and give an example.

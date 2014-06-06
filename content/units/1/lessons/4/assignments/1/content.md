@@ -1,5 +1,0 @@
-We gave you a brief introduction to the idea of control flow in the introduction to this lesson. In this assignment, we'd like you to read through a short tutorial on control flow in Python. This reading will teach you about if/elif/else statements, while and for loops, and the break and continue statements. 
-
-Read through [Section 9](http://www.swaroopch.com/notes/python/#control_flow) of *A Byte of Python*. As you read through this material, keep a Python console open and input the examples. 
-
-###### Later in this lesson we'll learn about using try/except blocks in Python as another form of control flow to control what our program does if it gets an error. *A Byte of Python* doesn't list try/except blocks as a form of control flow, but as you'll see when we discuss them, they really are another form of controlling the flow of your apps. **Also** be aware that the examples in this reading are intended to be saved to a text file with the **.py** ending. Python files can be run from the command line with `python /path/to/my/file/my_program.py`. We'll cover this later.

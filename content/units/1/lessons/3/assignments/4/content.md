@@ -1,7 +1,0 @@
-Earlier in this lesson, we briefly introduced the *dictionary* data type. We said that, like lists, dictionaries are mutable, which means you can alter them by adding or removing items after they've been created. We also said that dictionaries are comprised of *key value mappings*: if you reference a particular key in a dictionary, you can return its value.
-
-In the next assignment, you'll get a chance to work through some drills to give you practice using lists and dictionaries. Before doing that, though, we'd like you to read up on dictionaries and get some useful background info.
-
-Please read through [this tutorial](www.tutorialspoint.com/python/python_dictionary.htm) on dictionaries in Python, and make sure you understand how to create dictionaries and how to add, remove, and alter dictionary items. 
-
-###### In addition to the syntax `my_dict = {'a': 1}` that you'll learn in this tutorial, you can also create a dictionary using the following dictionary constructor method: `my_dict = dict(a=1)`. This syntax saves you from having to use quotation marks around your keys. You're free to use which ever one you prefer in our own code, but you should be able to recognize both when you see them.

@@ -1,3 +1,0 @@
-One of the easiest ways to make HTTP requests in Python is using the **Requests** library.  It describes iteself as "an elegant and simple HTTP library for Python, built for human beings".
-
-To help you get started using Requests, read through [this quickstart guide](http://docs.python-requests.org/en/latest/user/quickstart/) which shows you how to construct and carry out HTTP requests and work with the response data.

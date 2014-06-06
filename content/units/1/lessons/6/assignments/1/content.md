@@ -1,3 +1,0 @@
-In the introduction to this lesson, we said that objects and object oriented programming give us a way to model real world things and processes. In Python, we use **classes** to define new kinds of custom objects. In this assignment, we'll explore how to use Python classes in object oriented programming to model real world stuff. 
-
-Read through [this excellent slide deck](http://slides.com/jasonmyers/learnpython-classes) introducing Python classes. You're encouraged to code along and try out the examples on your own. This will give you practice with Python syntax for classes.

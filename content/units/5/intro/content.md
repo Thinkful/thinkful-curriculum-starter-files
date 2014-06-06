@@ -1,8 +1,0 @@
-# Goals
-
-*   
-*   
-
-
-# Skills
-

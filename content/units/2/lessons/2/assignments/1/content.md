@@ -1,3 +1,0 @@
-In the next few assignments we will be looking at using Python to access resources on the web. Almost all communication over the web happens using the HTTP protocol. So before we get started looking at some code, it makes sense to have an understanding of what the protocol looks like, and how it works.
-
-Carefully read through[part 1](http://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-1--net-31177) and [part 2](http://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-2--net-31155) of this tutorial to learn about what makes up an HTTP request, and what response you can expect.

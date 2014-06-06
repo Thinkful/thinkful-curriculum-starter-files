@@ -1,3 +1,0 @@
-The previous assignment gave you an excellent introduction to object oriented programming and Python classes. In this assignment, you'll get more practice with Python's class syntax over at Codecademy.
-
-Work through [all 18 drills](http://www.codecademy.com/courses/python-intermediate-en-WL8e4/0/1) of the Introduction to Classes track.
